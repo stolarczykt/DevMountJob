@@ -1,0 +1,2 @@
+module Advertisements
+end
