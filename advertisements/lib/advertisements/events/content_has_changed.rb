@@ -1,1 +1,3 @@
-class ContentHasChanged < RailsEventStore::Event; end
+module Advertisements
+  class ContentHasChanged < RailsEventStore::Event; end
+end

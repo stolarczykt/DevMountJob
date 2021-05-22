@@ -6,6 +6,10 @@ module Advertisements
       @content = ''
     end
 
+    def content
+      @content
+    end
+
     def change_content(new_content)
       apply ContentHasChanged.new(data: {content: new_content})
     end
