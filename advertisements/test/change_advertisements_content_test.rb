@@ -3,10 +3,10 @@ require_relative 'test_helper'
 module Advertisements
   class ChangeAdvertisementsContentTest < ActiveSupport::TestCase
     test 'change advertisement content' do
-      stream_name = "Advertisement$123"
-      repository = AggregateRoot::Repository.new
+      advertisement_id = 51654
+      repository = AdvertisementRepository.new
 
-      repository.with_aggregate(Advertisement.new, stream_name) do |advertisement|
+      repository.with_advertisement(advertisement_id) do |advertisement|
         advertisement.change_content("Astonishing new content!!!")
       end
     end
