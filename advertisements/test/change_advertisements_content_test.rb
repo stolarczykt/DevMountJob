@@ -18,6 +18,20 @@ module Advertisements
       end
     end
 
+    test 'change advertisement content - e2e' do
+      advertisement_id = 68456
+      stream = "Advertisement$#{advertisement_id}"
+      new_content = "Astonishing new content!!!"
+      command_bus = Rails.configuration.command_bus
+
+      assert_events(
+          stream,
+          ContentHasChanged.new(data: {content: new_content})
+      ) do
+        command_bus.(ChangeContent.new(advertisement_id, new_content))
+      end
+    end
+
     def assert_events(stream_name, *expected_events)
       scope = Rails.configuration.event_store.read.stream(stream_name)
       before = scope.last
