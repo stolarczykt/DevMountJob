@@ -3,18 +3,16 @@ require_relative 'test_helper'
 module Advertisements
   class ChangeAdvertisementsContentTest < ActiveSupport::TestCase
 
-    test 'change advertisement content - e2e' do
+    test 'publish advertisement' do
       advertisement_id = 68456
       stream = "Advertisement$#{advertisement_id}"
-      new_content = "Astonishing new content!!!"
       command_bus = Rails.configuration.command_bus
-      command_bus.(PublishAdvertisement.new(advertisement_id))
 
       assert_events(
           stream,
-          ContentHasChanged.new(data: {content: new_content})
+          AdvertisementPublished.new
       ) do
-        command_bus.(ChangeContent.new(advertisement_id, new_content))
+        command_bus.(PublishAdvertisement.new(advertisement_id))
       end
     end
 
