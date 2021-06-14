@@ -4,7 +4,7 @@ module Advertisements
     def call(command)
       repository = AdvertisementRepository::new
       repository.with_advertisement(command.advertisement_id) do |advertisement|
-        advertisement.publish()
+        advertisement.publish
       end
     end
   end
@@ -14,6 +14,15 @@ module Advertisements
       repository = AdvertisementRepository::new
       repository.with_advertisement(command.advertisement_id) do |advertisement|
         advertisement.change_content(command.content)
+      end
+    end
+  end
+
+  class OnPutAdvertisementOnHold
+    def call(command)
+      repository = AdvertisementRepository::new
+      repository.with_advertisement(command.advertisement_id) do |advertisement|
+        advertisement.put_on_hold
       end
     end
   end
