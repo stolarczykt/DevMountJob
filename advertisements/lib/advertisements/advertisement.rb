@@ -3,6 +3,7 @@ module Advertisements
     include AggregateRoot
 
     AlreadyPublished = Class.new(StandardError)
+    AlreadyResumed = Class.new(StandardError)
     AlreadyOnHold = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
 
@@ -16,6 +17,11 @@ module Advertisements
       apply AdvertisementPutOnHold.new
     end
 
+    def resume
+      raise AlreadyResumed if @state.equal?(:resumed)
+      apply AdvertisementResumed.new
+    end
+
     def change_content(new_content)
       raise NotPublished unless @state.equal?(:published)
       apply ContentHasChanged.new(data: {content: new_content})
@@ -23,6 +29,10 @@ module Advertisements
 
     def apply_advertisement_published(event)
       @state = :published
+    end
+
+    def apply_advertisement_resumed(event)
+      @state = :resumed
     end
 
     def apply_content_has_changed(event)

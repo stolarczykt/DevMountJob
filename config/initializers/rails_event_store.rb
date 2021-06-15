@@ -26,5 +26,6 @@ Rails.configuration.to_prepare do
     bus.register(Advertisements::ChangeContent, Advertisements::OnChangeContent.new)
     bus.register(Advertisements::PublishAdvertisement, Advertisements::OnPublishAdvertisement.new)
     bus.register(Advertisements::PutAdvertisementOnHold, Advertisements::OnPutAdvertisementOnHold.new)
+    bus.register(Advertisements::ResumeAdvertisement, Advertisements::OnResumeAdvertisement.new)
   end
 end

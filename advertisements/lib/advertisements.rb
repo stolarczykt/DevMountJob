@@ -9,6 +9,15 @@ module Advertisements
     end
   end
 
+  class OnResumeAdvertisement
+    def call(command)
+      repository = AdvertisementRepository::new
+      repository.with_advertisement(command.advertisement_id) do |advertisement|
+        advertisement.resume
+      end
+    end
+  end
+
   class OnChangeContent
     def call(command)
       repository = AdvertisementRepository::new
