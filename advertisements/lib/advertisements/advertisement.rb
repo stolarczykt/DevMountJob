@@ -5,6 +5,7 @@ module Advertisements
     AlreadyPublished = Class.new(StandardError)
     AlreadyResumed = Class.new(StandardError)
     AlreadyOnHold = Class.new(StandardError)
+    AlreadyExpired = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
 
     def publish
@@ -22,6 +23,11 @@ module Advertisements
       apply AdvertisementResumed.new
     end
 
+    def expire
+      raise AlreadyExpired if @state.equal?(:expired)
+      apply AdvertisementExpired.new
+    end
+
     def change_content(new_content)
       raise NotPublished unless @state.equal?(:published)
       apply ContentHasChanged.new(data: {content: new_content})
@@ -33,6 +39,10 @@ module Advertisements
 
     def apply_advertisement_resumed(event)
       @state = :resumed
+    end
+
+    def apply_advertisement_expired(event)
+      @state = :expired
     end
 
     def apply_content_has_changed(event)

@@ -1,7 +1,7 @@
 require_relative 'test_helper'
 
 module Advertisements
-  class ChangeAdvertisementsContentTest < ActiveSupport::TestCase
+  class ResumeAdvertisementTest < ActiveSupport::TestCase
 
     test 'resume advertisement' do
       advertisement_id = 68456

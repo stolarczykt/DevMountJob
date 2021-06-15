@@ -18,6 +18,15 @@ module Advertisements
     end
   end
 
+  class OnExpireAdvertisement
+    def call(command)
+      repository = AdvertisementRepository::new
+      repository.with_advertisement(command.advertisement_id) do |advertisement|
+        advertisement.expire
+      end
+    end
+  end
+
   class OnChangeContent
     def call(command)
       repository = AdvertisementRepository::new

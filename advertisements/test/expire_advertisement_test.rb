@@ -1,18 +1,18 @@
 require_relative 'test_helper'
 
 module Advertisements
-  class PublishAdvertisementTest < ActiveSupport::TestCase
+  class ExpireAdvertisementTest < ActiveSupport::TestCase
 
-    test 'publish advertisement' do
+    test 'expire advertisement' do
       advertisement_id = 68456
       stream = "Advertisement$#{advertisement_id}"
       command_bus = Rails.configuration.command_bus
 
       assert_events(
           stream,
-          AdvertisementPublished.new
+          AdvertisementExpired.new
       ) do
-        command_bus.(PublishAdvertisement.new(advertisement_id))
+        command_bus.(ExpireAdvertisement.new(advertisement_id))
       end
     end
 
