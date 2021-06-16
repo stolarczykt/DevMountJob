@@ -5,14 +5,20 @@ module Advertisements
 
     test 'publish advertisement' do
       advertisement_id = 68456
+      author_id = 1256
       stream = "Advertisement$#{advertisement_id}"
       command_bus = Rails.configuration.command_bus
 
       assert_events(
           stream,
-          AdvertisementPublished.new
+          AdvertisementPublished.new(
+              data: {
+                  advertisement_id: advertisement_id,
+                  author_id: author_id
+              }
+          )
       ) do
-        command_bus.(PublishAdvertisement.new(advertisement_id))
+        command_bus.(PublishAdvertisement.new(advertisement_id, author_id))
       end
     end
 

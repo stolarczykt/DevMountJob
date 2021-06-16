@@ -3,18 +3,32 @@ require_relative 'test_helper'
 module Advertisements
   class ChangeAdvertisementsContentTest < ActiveSupport::TestCase
 
-    test 'change advertisement content - e2e' do
+    test 'change advertisement content' do
       advertisement_id = 68456
+      author_id = 7382
       stream = "Advertisement$#{advertisement_id}"
       new_content = "Astonishing new content!!!"
       command_bus = Rails.configuration.command_bus
-      command_bus.(PublishAdvertisement.new(advertisement_id))
+      command_bus.(PublishAdvertisement.new(advertisement_id, author_id))
 
       assert_events(
           stream,
           ContentHasChanged.new(data: {content: new_content})
       ) do
-        command_bus.(ChangeContent.new(advertisement_id, new_content))
+        command_bus.(ChangeContent.new(advertisement_id, new_content, author_id))
+      end
+    end
+
+    test 'do not allow changing content if not an author' do
+      advertisement_id = 68456
+      author_id = 7382
+      not_an_author_id = 5456456
+      new_content = "Astonishing new content!!!"
+      command_bus = Rails.configuration.command_bus
+      command_bus.(PublishAdvertisement.new(advertisement_id, author_id))
+
+      assert_raises(Advertisement::NotAnAuthorOfAdvertisement) do
+        command_bus.(ChangeContent.new(advertisement_id, new_content, not_an_author_id))
       end
     end
 

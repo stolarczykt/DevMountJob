@@ -6,7 +6,7 @@ module Advertisements
 
     def with_advertisement(advertisement_id, &block)
       stream_name = "Advertisement$#{advertisement_id}"
-      repository.with_aggregate(Advertisement.new, stream_name, &block)
+      repository.with_aggregate(Advertisement.new(advertisement_id), stream_name, &block)
     end
 
     private
