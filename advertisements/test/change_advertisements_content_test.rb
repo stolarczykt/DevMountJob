@@ -12,8 +12,8 @@ module Advertisements
       command_bus.(PublishAdvertisement.new(advertisement_id, author_id))
 
       assert_events(
-          stream_name = "Advertisement$#{advertisement_id}",
-          expected_events = ContentHasChanged.new(data: {content: new_content})
+          "Advertisement$#{advertisement_id}",
+          ContentHasChanged.new(data: {content: new_content})
       ) do
         command_bus.(ChangeContent.new(advertisement_id, new_content, author_id))
       end

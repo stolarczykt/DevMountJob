@@ -39,23 +39,23 @@ module Advertisements
       apply ContentHasChanged.new(data: {content: new_content})
     end
 
-    def apply_advertisement_published(event)
+    on AdvertisementPublished do |event|
       @state = :published
       @author_id = event.data[:author_id]
     end
 
-    def apply_advertisement_resumed(event)
+    on AdvertisementResumed do |event|
       @state = :resumed
     end
 
-    def apply_advertisement_expired(event)
+    on AdvertisementExpired do |event|
       @state = :expired
     end
 
-    def apply_content_has_changed(event)
+    on ContentHasChanged do |event|
     end
 
-    def apply_advertisement_put_on_hold(event)
+    on AdvertisementPutOnHold do |event|
       @state = :on_hold
     end
   end
