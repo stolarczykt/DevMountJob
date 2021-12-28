@@ -8,13 +8,15 @@ module Advertisements
       author_id = 1256
       stream = "Advertisement$#{advertisement_id}"
       command_bus = Rails.configuration.command_bus
+      due_date = Advertisements::FakeDueDatePolicy::FAKE_DUE_DATE
 
       assert_events(
           stream,
           AdvertisementPublished.new(
               data: {
                   advertisement_id: advertisement_id,
-                  author_id: author_id
+                  author_id: author_id,
+                  due_date: due_date
               }
           )
       ) do

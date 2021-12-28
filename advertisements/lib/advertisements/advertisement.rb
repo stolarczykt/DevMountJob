@@ -13,9 +13,15 @@ module Advertisements
       @id = id
     end
 
-    def publish(author_id)
+    def publish(author_id, due_date)
       raise AlreadyPublished if @state.equal?(:published)
-      apply AdvertisementPublished.new(data: {advertisement_id: @id, author_id: author_id})
+      apply AdvertisementPublished.new(
+        data: {
+          advertisement_id: @id,
+          author_id: author_id,
+          due_date: due_date
+        }
+      )
     end
 
     def put_on_hold
@@ -42,6 +48,7 @@ module Advertisements
     on AdvertisementPublished do |event|
       @state = :published
       @author_id = event.data[:author_id]
+      @due_date = event.data[:due_date]
     end
 
     on AdvertisementResumed do |event|

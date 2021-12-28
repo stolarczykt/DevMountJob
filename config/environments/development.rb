@@ -73,4 +73,7 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+
+  # DevMountJob config
+  config.advertisement_due_date_policy = -> { Advertisements::DueDatePolicy.new }
 end
