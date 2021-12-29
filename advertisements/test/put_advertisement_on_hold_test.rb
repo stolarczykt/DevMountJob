@@ -2,6 +2,7 @@ require_relative 'test_helper'
 
 module Advertisements
   class PutAdvertisementOnHoldTest < ActiveSupport::TestCase
+    include TestPlumbing
 
     test 'put advertisement on hold' do
       advertisement_id = 68456
@@ -14,16 +15,6 @@ module Advertisements
       ) do
         command_bus.(PutAdvertisementOnHold.new(advertisement_id))
       end
-    end
-
-    def assert_events(stream_name, *expected_events)
-      scope = Rails.configuration.event_store.read.stream(stream_name)
-      before = scope.last
-      yield
-      actual_events = before.nil? ? scope.to_a : scope.from(before.event_id).to_a
-      to_compare = ->(ev) { { type: ev.event_type, data: ev.data } }
-      assert_equal expected_events.map(&to_compare),
-                   actual_events.map(&to_compare)
     end
   end
 end
