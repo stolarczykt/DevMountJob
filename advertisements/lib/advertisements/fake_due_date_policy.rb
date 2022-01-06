@@ -1,6 +1,6 @@
 module Advertisements
   class FakeDueDatePolicy
-    FAKE_DUE_DATE = Time.new(2021, 12, 28)
+    FAKE_DUE_DATE = Time.now + (60 * 60)
     def call
       FAKE_DUE_DATE
     end

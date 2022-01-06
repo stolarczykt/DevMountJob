@@ -5,6 +5,7 @@ module Advertisements
     AlreadyPublished = Class.new(StandardError)
     AlreadyResumed = Class.new(StandardError)
     AlreadyOnHold = Class.new(StandardError)
+    AfterDueDate = Class.new(StandardError)
     AlreadyExpired = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
@@ -24,8 +25,11 @@ module Advertisements
       )
     end
 
-    def put_on_hold
+    def put_on_hold(requester_id)
       raise AlreadyOnHold if @state.equal?(:on_hold)
+      raise NotPublished unless @state.equal?(:published)
+      raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
+      raise AfterDueDate if @due_date < Time.now
       apply AdvertisementPutOnHold.new
     end
 
