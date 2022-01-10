@@ -7,14 +7,18 @@ module Advertisements
     AlreadyOnHold = Class.new(StandardError)
     AfterDueDate = Class.new(StandardError)
     AlreadyExpired = Class.new(StandardError)
+    AlreadySuspended = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
+    NotADraft = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
 
     def initialize(id)
       @id = id
+      @state = :draft
     end
 
     def publish(author_id, due_date)
+      raise NotADraft unless @state.equal?(:draft)
       raise AlreadyPublished if @state.equal?(:published)
       apply AdvertisementPublished.new(
         data: {
@@ -31,6 +35,12 @@ module Advertisements
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       raise AfterDueDate if @due_date < Time.now
       apply AdvertisementPutOnHold.new
+    end
+
+    def suspend
+      raise AlreadySuspended if @state.equal?(:suspended)
+      # raise NotPublished unless @state.equal?(:published)
+      apply AdvertisementSuspended.new
     end
 
     def resume
@@ -56,7 +66,7 @@ module Advertisements
     end
 
     on AdvertisementResumed do |event|
-      @state = :resumed
+      @state = :published
     end
 
     on AdvertisementExpired do |event|
@@ -68,6 +78,10 @@ module Advertisements
 
     on AdvertisementPutOnHold do |event|
       @state = :on_hold
+    end
+
+    on AdvertisementSuspended do |event|
+      @state = :suspended
     end
   end
 end
