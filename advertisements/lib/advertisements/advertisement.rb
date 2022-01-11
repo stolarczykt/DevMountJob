@@ -9,6 +9,7 @@ module Advertisements
     AlreadyExpired = Class.new(StandardError)
     AlreadySuspended = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
+    NotOnHold = Class.new(StandardError)
     NotADraft = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
 
@@ -44,12 +45,13 @@ module Advertisements
     end
 
     def resume
-      raise AlreadyResumed if @state.equal?(:resumed)
+      raise NotOnHold unless @state.equal?(:on_hold)
       apply AdvertisementResumed.new
     end
 
     def expire
       raise AlreadyExpired if @state.equal?(:expired)
+      raise NotPublished unless @state.equal?(:published)
       apply AdvertisementExpired.new
     end
 
