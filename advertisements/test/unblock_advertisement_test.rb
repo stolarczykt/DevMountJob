@@ -1,48 +1,48 @@
 require_relative 'test_helper'
 
 module Advertisements
-  class ResumeAdvertisementTest < ActiveSupport::TestCase
+  class UnblockAdvertisementTest < ActiveSupport::TestCase
     include TestPlumbing
 
-    test 'resume advertisement' do
+    test 'unblock advertisement' do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
-        PutAdvertisementOnHold.new(advertisement_id, author_id)
+        SuspendAdvertisement.new(advertisement_id)
       )
 
       assert_events(
           stream,
-          AdvertisementResumed.new
+          AdvertisementUnblocked.new
       ) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(UnblockAdvertisement.new(advertisement_id))
       end
     end
 
-    test "draft can't be resumed" do
+    test "draft can't be unblocked" do
       advertisement_id = SecureRandom.random_number
 
-      assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+      assert_raises(Advertisement::NotSuspended) do
+        act(UnblockAdvertisement.new(advertisement_id))
       end
     end
 
-    test "advertisement can't be resumed if suspended" do
+    test "advertisement can't be unblocked if on hold" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
-        SuspendAdvertisement.new(advertisement_id)
+        PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+      assert_raises(Advertisement::NotSuspended) do
+        act(UnblockAdvertisement.new(advertisement_id))
       end
     end
 
-    test "advertisement can't be resumed if expired" do
+    test "advertisement can't be unblocked if expired" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       arrange(
@@ -50,20 +50,20 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+      assert_raises(Advertisement::NotSuspended) do
+        act(UnblockAdvertisement.new(advertisement_id))
       end
     end
 
-    test "advertisement can't be resumed if published" do
+    test "advertisement can't be unblocked if published" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+      assert_raises(Advertisement::NotSuspended) do
+        act(UnblockAdvertisement.new(advertisement_id))
       end
     end
   end

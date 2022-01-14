@@ -5,7 +5,7 @@ module Advertisements
     include TestPlumbing
 
     test 'expire advertisement' do
-      advertisement_id = 68456
+      advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       arrange(

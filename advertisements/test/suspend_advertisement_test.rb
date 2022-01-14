@@ -18,6 +18,23 @@ module Advertisements
       end
     end
 
+    test "suspend advertisement when on hold" do
+      advertisement_id = SecureRandom.random_number
+      stream = "Advertisement$#{advertisement_id}"
+      author_id = SecureRandom.random_number
+      arrange(
+        PublishAdvertisement.new(advertisement_id, author_id),
+        PutAdvertisementOnHold.new(advertisement_id, author_id)
+      )
+
+      assert_events(
+          stream,
+          AdvertisementSuspended.new
+      ) do
+        act(SuspendAdvertisement.new(advertisement_id))
+      end
+    end
+
     test "advertisement can't be suspended if draft" do
       advertisement_id = SecureRandom.random_number
 

@@ -60,4 +60,13 @@ module Advertisements
       end
     end
   end
+
+  class OnUnblockAdvertisement
+    def call(command)
+      repository = AdvertisementRepository::new
+      repository.with_advertisement(command.advertisement_id) do |advertisement|
+        advertisement.unblock
+      end
+    end
+  end
 end

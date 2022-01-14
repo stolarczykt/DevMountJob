@@ -11,6 +11,7 @@ module Advertisements
     NotPublished = Class.new(StandardError)
     NotPublishedOrOnHold = Class.new(StandardError)
     NotOnHold = Class.new(StandardError)
+    NotSuspended = Class.new(StandardError)
     NotADraft = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
 
@@ -50,6 +51,11 @@ module Advertisements
       apply AdvertisementSuspended.new
     end
 
+    def unblock
+      raise NotSuspended unless @state.equal?(:suspended)
+      apply AdvertisementUnblocked.new
+    end
+
     def expire
       raise AlreadyExpired if @state.equal?(:expired)
       raise NotPublished unless @state.equal?(:published)
@@ -68,10 +74,6 @@ module Advertisements
       @due_date = event.data[:due_date]
     end
 
-    on AdvertisementResumed do |event|
-      @state = :published
-    end
-
     on AdvertisementExpired do |event|
       @state = :expired
     end
@@ -83,8 +85,16 @@ module Advertisements
       @state = :on_hold
     end
 
+    on AdvertisementResumed do |event|
+      @state = :published
+    end
+
     on AdvertisementSuspended do |event|
       @state = :suspended
+    end
+
+    on AdvertisementUnblocked do |event|
+      @state = :published
     end
   end
 end
