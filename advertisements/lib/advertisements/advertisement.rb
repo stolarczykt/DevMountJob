@@ -40,8 +40,9 @@ module Advertisements
       apply AdvertisementPutOnHold.new
     end
 
-    def resume
+    def resume(requester_id)
       raise NotOnHold unless @state.equal?(:on_hold)
+      raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       apply AdvertisementResumed.new
     end
 

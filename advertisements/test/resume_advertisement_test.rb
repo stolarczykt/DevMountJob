@@ -4,7 +4,7 @@ module Advertisements
   class ResumeAdvertisementTest < ActiveSupport::TestCase
     include TestPlumbing
 
-    test 'resume advertisement' do
+    test 'resume the advertisement' do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
@@ -17,15 +17,30 @@ module Advertisements
           stream,
           AdvertisementResumed.new
       ) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(ResumeAdvertisement.new(advertisement_id, author_id))
+      end
+    end
+
+    test 'fail resume if not the author' do
+      advertisement_id = SecureRandom.random_number
+      author_id = SecureRandom.random_number
+      requester_id = SecureRandom.random_number
+      arrange(
+        PublishAdvertisement.new(advertisement_id, author_id),
+        PutAdvertisementOnHold.new(advertisement_id, author_id)
+      )
+
+      assert_raises(Advertisement::NotAnAuthorOfAdvertisement) do
+        act(ResumeAdvertisement.new(advertisement_id, requester_id))
       end
     end
 
     test "draft can't be resumed" do
       advertisement_id = SecureRandom.random_number
+      author_id = SecureRandom.random_number
 
       assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
     end
 
@@ -38,7 +53,7 @@ module Advertisements
       )
 
       assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
     end
 
@@ -51,7 +66,7 @@ module Advertisements
       )
 
       assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
     end
 
@@ -63,7 +78,7 @@ module Advertisements
       )
 
       assert_raises(Advertisement::NotOnHold) do
-        act(ResumeAdvertisement.new(advertisement_id))
+        act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
     end
   end

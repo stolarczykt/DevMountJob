@@ -20,7 +20,7 @@ module Advertisements
     def call(command)
       repository = AdvertisementRepository::new
       repository.with_advertisement(command.advertisement_id) do |advertisement|
-        advertisement.resume
+        advertisement.resume(command.requester_id)
       end
     end
   end
