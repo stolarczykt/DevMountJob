@@ -9,6 +9,7 @@ module Advertisements
     AlreadyExpired = Class.new(StandardError)
     AlreadySuspended = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
+    NotPublishedOrOnHold = Class.new(StandardError)
     NotOnHold = Class.new(StandardError)
     NotADraft = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
@@ -38,15 +39,15 @@ module Advertisements
       apply AdvertisementPutOnHold.new
     end
 
-    def suspend
-      raise AlreadySuspended if @state.equal?(:suspended)
-      # raise NotPublished unless @state.equal?(:published)
-      apply AdvertisementSuspended.new
-    end
-
     def resume
       raise NotOnHold unless @state.equal?(:on_hold)
       apply AdvertisementResumed.new
+    end
+
+    def suspend
+      raise AlreadySuspended if @state.equal?(:suspended)
+      raise NotPublishedOrOnHold unless [:published, :on_hold].include?(@state)
+      apply AdvertisementSuspended.new
     end
 
     def expire
