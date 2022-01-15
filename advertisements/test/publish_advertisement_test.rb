@@ -31,7 +31,7 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotADraft) do
+      assert_raises(Advertisement::AlreadyPublished) do
         act(PublishAdvertisement.new(advertisement_id, author_id))
       end
     end

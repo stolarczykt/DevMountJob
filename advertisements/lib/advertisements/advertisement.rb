@@ -21,8 +21,8 @@ module Advertisements
     end
 
     def publish(author_id, due_date)
-      raise NotADraft unless @state.equal?(:draft)
       raise AlreadyPublished if @state.equal?(:published)
+      raise NotADraft unless @state.equal?(:draft)
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
