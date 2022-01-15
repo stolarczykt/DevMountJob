@@ -37,36 +37,61 @@ module Advertisements
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       raise AfterDueDate if @due_date < Time.now
-      apply AdvertisementPutOnHold.new
+      apply AdvertisementPutOnHold.new(
+        data: {
+          advertisement_id: @id
+        }
+      )
     end
 
     def resume(requester_id)
       raise NotOnHold unless @state.equal?(:on_hold)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
-      apply AdvertisementResumed.new
+      apply AdvertisementResumed.new(
+        data: {
+          advertisement_id: @id
+        }
+      )
     end
 
     def suspend
       raise AlreadySuspended if @state.equal?(:suspended)
       raise NotPublishedOrOnHold unless [:published, :on_hold].include?(@state)
-      apply AdvertisementSuspended.new
+      apply AdvertisementSuspended.new(
+        data: {
+          advertisement_id: @id
+        }
+      )
     end
 
     def unblock
       raise NotSuspended unless @state.equal?(:suspended)
-      apply AdvertisementUnblocked.new
+      apply AdvertisementUnblocked.new(
+        data: {
+          advertisement_id: @id
+        }
+      )
     end
 
     def expire
       raise AlreadyExpired if @state.equal?(:expired)
       raise NotPublished unless @state.equal?(:published)
-      apply AdvertisementExpired.new
+      apply AdvertisementExpired.new(
+        data: {
+          advertisement_id: @id
+        }
+      )
     end
 
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(author_id)
-      apply ContentHasChanged.new(data: {content: new_content})
+      apply ContentHasChanged.new(
+        data: {
+          advertisement_id: @id,
+          content: new_content
+        }
+      )
     end
 
     on AdvertisementPublished do |event|

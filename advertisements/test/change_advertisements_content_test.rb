@@ -13,7 +13,12 @@ module Advertisements
 
       assert_events(
           "Advertisement$#{advertisement_id}",
-          ContentHasChanged.new(data: {content: new_content})
+          ContentHasChanged.new(
+            data: {
+              advertisement_id: advertisement_id,
+              content: new_content
+            }
+          )
       ) do
         act(ChangeContent.new(advertisement_id, new_content, author_id))
       end

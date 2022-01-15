@@ -14,7 +14,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementExpired.new
+          AdvertisementExpired.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(ExpireAdvertisement.new(advertisement_id))
       end

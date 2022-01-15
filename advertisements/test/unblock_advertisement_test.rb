@@ -15,7 +15,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementUnblocked.new
+          AdvertisementUnblocked.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(UnblockAdvertisement.new(advertisement_id))
       end

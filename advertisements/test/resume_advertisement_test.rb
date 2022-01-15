@@ -15,7 +15,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementResumed.new
+          AdvertisementResumed.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end

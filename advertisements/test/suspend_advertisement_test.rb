@@ -12,7 +12,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementSuspended.new
+          AdvertisementSuspended.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(SuspendAdvertisement.new(advertisement_id))
       end
@@ -29,7 +33,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementSuspended.new
+          AdvertisementSuspended.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(SuspendAdvertisement.new(advertisement_id))
       end

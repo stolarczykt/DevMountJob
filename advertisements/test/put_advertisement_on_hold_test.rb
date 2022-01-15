@@ -12,7 +12,11 @@ module Advertisements
 
       assert_events(
           stream,
-          AdvertisementPutOnHold.new
+          AdvertisementPutOnHold.new(
+            data: {
+              advertisement_id: advertisement_id
+            }
+          )
       ) do
         act(PutAdvertisementOnHold.new(advertisement_id, author_id))
       end
