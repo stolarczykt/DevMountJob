@@ -31,9 +31,10 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::AlreadyPublished) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Publish allowed only from [draft], but was [published]", error.message
     end
 
     test "can't publish on hold advertisement" do
@@ -44,9 +45,10 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotADraft) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Publish allowed only from [draft], but was [on_hold]", error.message
     end
 
     test "can't publish suspended advertisement" do
@@ -57,9 +59,10 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotADraft) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Publish allowed only from [draft], but was [suspended]", error.message
     end
 
     test "can't publish expired advertisement" do
@@ -70,9 +73,10 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotADraft) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Publish allowed only from [draft], but was [expired]", error.message
     end
   end
 end

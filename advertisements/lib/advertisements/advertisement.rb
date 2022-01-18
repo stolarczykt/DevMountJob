@@ -2,17 +2,9 @@ module Advertisements
   class Advertisement
     include AggregateRoot
 
-    AlreadyPublished = Class.new(StandardError)
-    AlreadyResumed = Class.new(StandardError)
-    AlreadyOnHold = Class.new(StandardError)
-    AfterDueDate = Class.new(StandardError)
-    AlreadyExpired = Class.new(StandardError)
-    AlreadySuspended = Class.new(StandardError)
     NotPublished = Class.new(StandardError)
-    NotPublishedOrOnHold = Class.new(StandardError)
-    NotOnHold = Class.new(StandardError)
-    NotSuspended = Class.new(StandardError)
-    NotADraft = Class.new(StandardError)
+    AfterDueDate = Class.new(StandardError)
+    UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
 
     def initialize(id)
@@ -21,8 +13,7 @@ module Advertisements
     end
 
     def publish(author_id, due_date)
-      raise AlreadyPublished if @state.equal?(:published)
-      raise NotADraft unless @state.equal?(:draft)
+      raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
@@ -33,8 +24,7 @@ module Advertisements
     end
 
     def put_on_hold(requester_id)
-      raise AlreadyOnHold if @state.equal?(:on_hold)
-      raise NotPublished unless @state.equal?(:published)
+      raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       raise AfterDueDate if @due_date < Time.now
       apply AdvertisementPutOnHold.new(
@@ -45,7 +35,7 @@ module Advertisements
     end
 
     def resume(requester_id)
-      raise NotOnHold unless @state.equal?(:on_hold)
+      raise UnexpectedStateTransition.new("Resume allowed only from [#{:on_hold}], but was [#{@state}]") unless @state.equal?(:on_hold)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       apply AdvertisementResumed.new(
         data: {
@@ -55,8 +45,7 @@ module Advertisements
     end
 
     def suspend
-      raise AlreadySuspended if @state.equal?(:suspended)
-      raise NotPublishedOrOnHold unless [:published, :on_hold].include?(@state)
+      raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
       apply AdvertisementSuspended.new(
         data: {
           advertisement_id: @id
@@ -65,7 +54,7 @@ module Advertisements
     end
 
     def unblock
-      raise NotSuspended unless @state.equal?(:suspended)
+      raise UnexpectedStateTransition.new("Unblock allowed only from [#{:suspended}], but was [#{@state}]") unless @state.equal?(:suspended)
       apply AdvertisementUnblocked.new(
         data: {
           advertisement_id: @id
@@ -74,8 +63,7 @@ module Advertisements
     end
 
     def expire
-      raise AlreadyExpired if @state.equal?(:expired)
-      raise NotPublished unless @state.equal?(:published)
+      raise UnexpectedStateTransition.new("Expire allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
       apply AdvertisementExpired.new(
         data: {
           advertisement_id: @id

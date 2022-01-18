@@ -43,9 +43,10 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
 
-      assert_raises(Advertisement::NotOnHold) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Resume allowed only from [on_hold], but was [draft]", error.message
     end
 
     test "advertisement can't be resumed if suspended" do
@@ -56,9 +57,10 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Resume allowed only from [on_hold], but was [suspended]", error.message
     end
 
     test "advertisement can't be resumed if expired" do
@@ -69,9 +71,10 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Resume allowed only from [on_hold], but was [expired]", error.message
     end
 
     test "advertisement can't be resumed if published" do
@@ -81,9 +84,10 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotOnHold) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
+      assert_equal "Resume allowed only from [on_hold], but was [published]", error.message
     end
   end
 end

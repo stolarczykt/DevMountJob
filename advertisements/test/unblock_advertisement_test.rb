@@ -28,9 +28,10 @@ module Advertisements
     test "draft can't be unblocked" do
       advertisement_id = SecureRandom.random_number
 
-      assert_raises(Advertisement::NotSuspended) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
+      assert_equal "Unblock allowed only from [suspended], but was [draft]", error.message
     end
 
     test "advertisement can't be unblocked if on hold" do
@@ -41,9 +42,10 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotSuspended) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
+      assert_equal "Unblock allowed only from [suspended], but was [on_hold]", error.message
     end
 
     test "advertisement can't be unblocked if expired" do
@@ -54,9 +56,10 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotSuspended) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
+      assert_equal "Unblock allowed only from [suspended], but was [expired]", error.message
     end
 
     test "advertisement can't be unblocked if published" do
@@ -66,9 +69,10 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotSuspended) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
+      assert_equal "Unblock allowed only from [suspended], but was [published]", error.message
     end
   end
 end

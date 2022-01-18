@@ -27,9 +27,10 @@ module Advertisements
     test "draft can't be expired" do
       advertisement_id = SecureRandom.random_number
 
-      assert_raises(Advertisement::NotPublished) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
+      assert_equal "Expire allowed only from [published], but was [draft]", error.message
     end
 
     test "advertisement can't be expired if suspended" do
@@ -40,9 +41,10 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::NotPublished) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
+      assert_equal "Expire allowed only from [published], but was [suspended]", error.message
     end
 
     test "advertisement can't be expired if on hold" do
@@ -53,9 +55,10 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      assert_raises(Advertisement::NotPublished) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
+      assert_equal "Expire allowed only from [published], but was [on_hold]", error.message
     end
 
     test "advertisement can't be expired if already expired" do
@@ -66,9 +69,10 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      assert_raises(Advertisement::AlreadyExpired) do
+      error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
+      assert_equal "Expire allowed only from [published], but was [expired]", error.message
     end
   end
 end
