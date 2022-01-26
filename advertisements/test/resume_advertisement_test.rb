@@ -8,6 +8,7 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
+      due_date = FakeDueDatePolicy::FAKE_NEW_DUE_DATE
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
@@ -17,7 +18,8 @@ module Advertisements
           stream,
           AdvertisementResumed.new(
             data: {
-              advertisement_id: advertisement_id
+              advertisement_id: advertisement_id,
+              due_date: due_date
             }
           )
       ) do

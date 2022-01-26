@@ -7,18 +7,19 @@ module Advertisements
     UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
 
-    def initialize(id)
+    def initialize(id, due_date_policy)
       @id = id
       @state = :draft
+      @due_date_policy = due_date_policy
     end
 
-    def publish(author_id, due_date)
+    def publish(author_id)
       raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
           author_id: author_id,
-          due_date: due_date
+          due_date: @due_date_policy.call
         }
       )
     end
@@ -26,10 +27,12 @@ module Advertisements
     def put_on_hold(requester_id)
       raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
-      raise AfterDueDate if @due_date < Time.now
+      stop_time = @due_date_policy.stop_time
+      raise AfterDueDate if @due_date < stop_time
       apply AdvertisementPutOnHold.new(
         data: {
-          advertisement_id: @id
+          advertisement_id: @id,
+          stopped_at: stop_time
         }
       )
     end
@@ -39,16 +42,19 @@ module Advertisements
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       apply AdvertisementResumed.new(
         data: {
-          advertisement_id: @id
+          advertisement_id: @id,
+          due_date: @due_date_policy.recalculate(@due_date, @stopped_at)
         }
       )
     end
 
     def suspend
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
+      stopped_at = @state == :on_hold ? @stopped_at : @due_date_policy.stop_time
       apply AdvertisementSuspended.new(
         data: {
-          advertisement_id: @id
+          advertisement_id: @id,
+          stopped_at: stopped_at
         }
       )
     end
@@ -57,7 +63,8 @@ module Advertisements
       raise UnexpectedStateTransition.new("Unblock allowed only from [#{:suspended}], but was [#{@state}]") unless @state.equal?(:suspended)
       apply AdvertisementUnblocked.new(
         data: {
-          advertisement_id: @id
+          advertisement_id: @id,
+          due_date: @due_date_policy.recalculate(@due_date, @stopped_at)
         }
       )
     end
@@ -97,18 +104,22 @@ module Advertisements
 
     on AdvertisementPutOnHold do |event|
       @state = :on_hold
+      @stopped_at = event.data[:stopped_at]
     end
 
     on AdvertisementResumed do |event|
       @state = :published
+      @due_date = event.data[:due_date]
     end
 
     on AdvertisementSuspended do |event|
       @state = :suspended
+      @stopped_at = event.data[:stopped_at]
     end
 
     on AdvertisementUnblocked do |event|
       @state = :published
+      @due_date = event.data[:due_date]
     end
   end
 end

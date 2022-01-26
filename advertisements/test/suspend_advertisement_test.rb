@@ -8,13 +8,15 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      stop_time = FakeDueDatePolicy::FAKE_STOP_TIME
       arrange(PublishAdvertisement.new(advertisement_id, author_id))
 
       assert_events(
           stream,
           AdvertisementSuspended.new(
             data: {
-              advertisement_id: advertisement_id
+              advertisement_id: advertisement_id,
+              stopped_at: stop_time
             }
           )
       ) do
@@ -26,6 +28,7 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      stop_time = FakeDueDatePolicy::FAKE_STOP_TIME
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
@@ -35,7 +38,8 @@ module Advertisements
           stream,
           AdvertisementSuspended.new(
             data: {
-              advertisement_id: advertisement_id
+              advertisement_id: advertisement_id,
+              stopped_at: stop_time
             }
           )
       ) do

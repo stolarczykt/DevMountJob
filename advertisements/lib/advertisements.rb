@@ -4,14 +4,10 @@ module Advertisements
   end
 
   class OnPublishAdvertisement
-    def initialize(due_date_policy)
-      @due_date_policy = due_date_policy
-    end
     def call(command)
       repository = AdvertisementRepository::new
-      due_date = @due_date_policy.call
       repository.with_advertisement(command.advertisement_id) do |advertisement|
-        advertisement.publish(command.author_id, due_date)
+        advertisement.publish(command.author_id)
       end
     end
   end

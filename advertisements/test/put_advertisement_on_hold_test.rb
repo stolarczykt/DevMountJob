@@ -8,13 +8,15 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      stop_time = FakeDueDatePolicy::FAKE_STOP_TIME
       arrange(PublishAdvertisement.new(advertisement_id, author_id))
 
       assert_events(
           stream,
           AdvertisementPutOnHold.new(
             data: {
-              advertisement_id: advertisement_id
+              advertisement_id: advertisement_id,
+              stopped_at: stop_time
             }
           )
       ) do
@@ -32,6 +34,16 @@ module Advertisements
         act(PutAdvertisementOnHold.new(advertisement_id, random_requester_id))
       end
     end
+
+    # test "advertisement can't be put on hold after due date" do
+    #   advertisement_id = SecureRandom.random_number
+    #   author_id = SecureRandom.random_number
+    #   arrange(PublishAdvertisement.new(advertisement_id, author_id))
+    #
+    #   assert_raises(Advertisement::AfterDueDate) do
+    #     act(PutAdvertisementOnHold.new(advertisement_id, author_id))
+    #   end
+    # end
 
     test "advertisement can't be put on hold if not published" do
       advertisement_id = SecureRandom.random_number
