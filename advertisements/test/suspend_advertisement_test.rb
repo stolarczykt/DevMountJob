@@ -8,6 +8,7 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
       arrange(PublishAdvertisement.new(advertisement_id, author_id))
@@ -19,11 +20,12 @@ module Advertisements
           AdvertisementSuspended.new(
             data: {
               advertisement_id: advertisement_id,
+              reason: suspend_reason,
               stopped_at: time_when_suspended
             }
           )
       ) do
-        act(SuspendAdvertisement.new(advertisement_id))
+        act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
     end
 
@@ -31,6 +33,7 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
       arrange(
@@ -48,19 +51,21 @@ module Advertisements
           AdvertisementSuspended.new(
             data: {
               advertisement_id: advertisement_id,
+              reason: suspend_reason,
               stopped_at: time_when_put_on_hold
             }
           )
       ) do
-        act(SuspendAdvertisement.new(advertisement_id))
+        act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
     end
 
     test "advertisement can't be suspended if draft" do
       advertisement_id = SecureRandom.random_number
+      suspend_reason = "Reason: #{SecureRandom.hex}"
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
-        act(SuspendAdvertisement.new(advertisement_id))
+        act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
       assert_equal "Suspend allowed only from [published, on_hold], but was [draft]", error.message
     end
@@ -68,13 +73,14 @@ module Advertisements
     test "advertisement can't be suspended if expired" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
         ExpireAdvertisement.new(advertisement_id)
       )
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
-        act(SuspendAdvertisement.new(advertisement_id))
+        act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
       assert_equal "Suspend allowed only from [published, on_hold], but was [expired]", error.message
     end
@@ -82,13 +88,14 @@ module Advertisements
     test "advertisement can't be suspended if already suspended" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
-        SuspendAdvertisement.new(advertisement_id)
+        SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
-        act(SuspendAdvertisement.new(advertisement_id))
+        act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
       assert_equal "Suspend allowed only from [published, on_hold], but was [suspended]", error.message
     end

@@ -48,12 +48,13 @@ module Advertisements
       )
     end
 
-    def suspend
+    def suspend(reason)
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
       stopped_at = @state == :on_hold ? @stopped_at : @due_date_policy.stop_time
       apply AdvertisementSuspended.new(
         data: {
           advertisement_id: @id,
+          reason: reason,
           stopped_at: stopped_at
         }
       )

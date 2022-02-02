@@ -52,7 +52,7 @@ module Advertisements
     def call(command)
       repository = AdvertisementRepository::new
       repository.with_advertisement(command.advertisement_id) do |advertisement|
-        advertisement.suspend
+        advertisement.suspend(command.reason)
       end
     end
   end
