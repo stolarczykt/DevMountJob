@@ -28,4 +28,8 @@ module TestPlumbing
     expects = expected.map(&:data)
     assert_equal(expects, actuals.map(&:data))
   end
+
+  def travel_in_time_to(time)
+    Rails.configuration.clock = -> { FakeClock.new(time) }
+  end
 end

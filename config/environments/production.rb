@@ -119,5 +119,5 @@ Rails.application.configure do
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
 
   # DevMountJob config
-  config.advertisement_due_date_policy = -> { Advertisements::DueDatePolicy.new }
+  config.clock = -> { RealClock.new }
 end

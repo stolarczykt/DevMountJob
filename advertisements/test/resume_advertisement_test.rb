@@ -8,18 +8,22 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
-      due_date = FakeDueDatePolicy::FAKE_NEW_DUE_DATE
+      time_when_published = Time.now
+      travel_in_time_to(time_when_published)
+      original_due_date = time_when_published + (60 * 60 * 24 * 14)
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
+      put_on_hold_for = 120
+      travel_in_time_to(time_when_published + put_on_hold_for)
 
       assert_events(
           stream,
           AdvertisementResumed.new(
             data: {
               advertisement_id: advertisement_id,
-              due_date: due_date
+              due_date: original_due_date + put_on_hold_for
             }
           )
       ) do

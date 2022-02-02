@@ -8,15 +8,18 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
-      stop_time = FakeDueDatePolicy::FAKE_STOP_TIME
+      time_when_published = Time.now
+      travel_in_time_to(time_when_published)
       arrange(PublishAdvertisement.new(advertisement_id, author_id))
+      time_when_suspended = time_when_published + 100
+      travel_in_time_to(time_when_suspended)
 
       assert_events(
           stream,
           AdvertisementSuspended.new(
             data: {
               advertisement_id: advertisement_id,
-              stopped_at: stop_time
+              stopped_at: time_when_suspended
             }
           )
       ) do
@@ -24,22 +27,28 @@ module Advertisements
       end
     end
 
-    test "suspend advertisement when on hold" do
+    test "suspend advertisement when on hold - take stop time from on hold" do
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
-      stop_time = FakeDueDatePolicy::FAKE_STOP_TIME
+      time_when_published = Time.now
+      travel_in_time_to(time_when_published)
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id)
+      )
+      time_when_put_on_hold = time_when_published + 3600
+      travel_in_time_to(time_when_put_on_hold)
+      arrange(
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
+      travel_in_time_to(time_when_put_on_hold + 100)
 
       assert_events(
           stream,
           AdvertisementSuspended.new(
             data: {
               advertisement_id: advertisement_id,
-              stopped_at: stop_time
+              stopped_at: time_when_put_on_hold
             }
           )
       ) do

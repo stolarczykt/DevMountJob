@@ -59,5 +59,5 @@ Rails.application.configure do
   # config.action_view.annotate_rendered_view_with_filenames = true
 
   # DevMountJob config
-  config.advertisement_due_date_policy = -> { Advertisements::FakeDueDatePolicy.new }
+  config.clock = -> { RealClock.new }
 end

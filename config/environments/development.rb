@@ -75,5 +75,5 @@ Rails.application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 
   # DevMountJob config
-  config.advertisement_due_date_policy = -> { Advertisements::DueDatePolicy.new }
+  config.clock = -> { RealClock.new }
 end

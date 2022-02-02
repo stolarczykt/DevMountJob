@@ -8,7 +8,9 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
-      due_date = FakeDueDatePolicy::FAKE_DUE_DATE
+      time_when_published = Time.now
+      travel_in_time_to(time_when_published)
+      due_date = time_when_published + (60 * 60 * 24 * 14)
 
       assert_events(
           stream,
