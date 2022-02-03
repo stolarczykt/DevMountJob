@@ -9,10 +9,11 @@ module Advertisements
     MissingContent = Class.new(StandardError)
     MissingSuspendReason = Class.new(StandardError)
 
-    def initialize(id, due_date_policy)
+    def initialize(id, due_date_policy, clock)
       @id = id
       @state = :draft
       @due_date_policy = due_date_policy
+      @clock = clock
     end
 
     def publish(author_id, content)
@@ -31,7 +32,7 @@ module Advertisements
     def put_on_hold(requester_id)
       raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
-      stop_time = @due_date_policy.stop_time
+      stop_time = @clock.now
       raise AfterDueDate if @due_date < stop_time
       apply AdvertisementPutOnHold.new(
         data: {
@@ -55,7 +56,7 @@ module Advertisements
     def suspend(reason)
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
       raise MissingSuspendReason if reason.nil? || reason.strip.empty?
-      stopped_at = @state == :on_hold ? @stopped_at : @due_date_policy.stop_time
+      stopped_at = @state == :on_hold ? @stopped_at : @clock.now
       apply AdvertisementSuspended.new(
         data: {
           advertisement_id: @id,

@@ -5,16 +5,18 @@ module Advertisements
       clock = Rails.configuration.clock.call
     )
       @repository = AggregateRoot::Repository.new(event_store)
+      @clock = clock
       @due_date_policy = DueDatePolicy.new(clock)
     end
 
     def with_advertisement(advertisement_id, &block)
       stream_name = "Advertisement$#{advertisement_id}"
-      repository.with_aggregate(Advertisement.new(advertisement_id, due_date_policy), stream_name, &block)
+      repository.with_aggregate(Advertisement.new(advertisement_id, due_date_policy, clock), stream_name, &block)
     end
 
     private
     attr_reader :repository
+    attr_reader :clock
     attr_reader :due_date_policy
   end
 end

@@ -11,9 +11,5 @@ module Advertisements
     def recalculate(prev_due_date, stopped_at)
       prev_due_date + (@clock.now - stopped_at)
     end
-
-    def stop_time
-      @clock.now
-    end
   end
 end
