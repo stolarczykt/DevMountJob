@@ -8,8 +8,9 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id)
+        PublishAdvertisement.new(advertisement_id, author_id, content)
       )
 
       assert_events(
@@ -36,9 +37,11 @@ module Advertisements
     test "advertisement can't be expired if suspended" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
-        SuspendAdvertisement.new(advertisement_id)
+        PublishAdvertisement.new(advertisement_id, author_id, content),
+        SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
@@ -50,8 +53,9 @@ module Advertisements
     test "advertisement can't be expired if on hold" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
@@ -64,8 +68,9 @@ module Advertisements
     test "advertisement can't be expired if already expired" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         ExpireAdvertisement.new(advertisement_id)
       )
 

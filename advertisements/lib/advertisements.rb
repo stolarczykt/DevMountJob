@@ -7,7 +7,7 @@ module Advertisements
     def call(command)
       repository = AdvertisementRepository::new
       repository.with_advertisement(command.advertisement_id) do |advertisement|
-        advertisement.publish(command.author_id)
+        advertisement.publish(command.author_id, command.content)
       end
     end
   end

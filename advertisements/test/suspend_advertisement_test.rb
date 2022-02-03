@@ -8,10 +8,11 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
-      arrange(PublishAdvertisement.new(advertisement_id, author_id))
+      arrange(PublishAdvertisement.new(advertisement_id, author_id, content))
       time_when_suspended = time_when_published + 100
       travel_in_time_to(time_when_suspended)
 
@@ -33,11 +34,12 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       stream = "Advertisement$#{advertisement_id}"
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id)
+        PublishAdvertisement.new(advertisement_id, author_id, content)
       )
       time_when_put_on_hold = time_when_published + 3600
       travel_in_time_to(time_when_put_on_hold)
@@ -73,9 +75,10 @@ module Advertisements
     test "advertisement can't be suspended if expired" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         ExpireAdvertisement.new(advertisement_id)
       )
 
@@ -88,9 +91,10 @@ module Advertisements
     test "advertisement can't be suspended if already suspended" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 

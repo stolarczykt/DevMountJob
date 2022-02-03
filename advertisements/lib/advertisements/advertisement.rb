@@ -6,6 +6,7 @@ module Advertisements
     AfterDueDate = Class.new(StandardError)
     UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
+    ContentCantBeEmpty = Class.new(StandardError)
 
     def initialize(id, due_date_policy)
       @id = id
@@ -13,12 +14,14 @@ module Advertisements
       @due_date_policy = due_date_policy
     end
 
-    def publish(author_id)
+    def publish(author_id, content)
       raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
+      raise ContentCantBeEmpty if content.nil? || content.empty?
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
           author_id: author_id,
+          content: content,
           due_date: @due_date_policy.call
         }
       )
@@ -82,6 +85,7 @@ module Advertisements
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(author_id)
+      raise ContentCantBeEmpty if new_content.nil? || new_content.empty?
       apply ContentHasChanged.new(
         data: {
           advertisement_id: @id,

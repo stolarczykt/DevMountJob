@@ -7,12 +7,13 @@ module Advertisements
     test 'resume the advertisement' do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       stream = "Advertisement$#{advertisement_id}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
       original_due_date = time_when_published + (60 * 60 * 24 * 14)
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
       put_on_hold_for = 120
@@ -35,8 +36,9 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       requester_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
@@ -58,9 +60,11 @@ module Advertisements
     test "advertisement can't be resumed if suspended" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
+      suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
-        SuspendAdvertisement.new(advertisement_id)
+        PublishAdvertisement.new(advertisement_id, author_id, content),
+        SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
@@ -72,8 +76,9 @@ module Advertisements
     test "advertisement can't be resumed if expired" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id),
+        PublishAdvertisement.new(advertisement_id, author_id, content),
         ExpireAdvertisement.new(advertisement_id)
       )
 
@@ -86,8 +91,9 @@ module Advertisements
     test "advertisement can't be resumed if published" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
       arrange(
-        PublishAdvertisement.new(advertisement_id, author_id)
+        PublishAdvertisement.new(advertisement_id, author_id, content)
       )
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
