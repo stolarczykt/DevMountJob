@@ -31,11 +31,11 @@ module Advertisements
       original_content = "Content: #{SecureRandom.hex}"
       arrange(PublishAdvertisement.new(advertisement_id, author_id, original_content))
 
-      assert_raises(Advertisement::ContentCantBeEmpty) do
+      assert_raises(Advertisement::MissingContent) do
         act(ChangeContent.new(advertisement_id, "", author_id))
       end
 
-      assert_raises(Advertisement::ContentCantBeEmpty) do
+      assert_raises(Advertisement::MissingContent) do
         act(ChangeContent.new(advertisement_id, nil, author_id))
       end
     end

@@ -62,6 +62,25 @@ module Advertisements
       end
     end
 
+    test "suspend reason can't be nil nor empty" do
+      advertisement_id = SecureRandom.random_number
+      author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
+      arrange(PublishAdvertisement.new(advertisement_id, author_id, content))
+
+      assert_raises(Advertisement::MissingSuspendReason) do
+        act(SuspendAdvertisement.new(advertisement_id, ""))
+      end
+
+      assert_raises(Advertisement::MissingSuspendReason) do
+        act(SuspendAdvertisement.new(advertisement_id, "     "))
+      end
+
+      assert_raises(Advertisement::MissingSuspendReason) do
+        act(SuspendAdvertisement.new(advertisement_id, nil))
+      end
+    end
+
     test "advertisement can't be suspended if draft" do
       advertisement_id = SecureRandom.random_number
       suspend_reason = "Reason: #{SecureRandom.hex}"

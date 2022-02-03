@@ -6,7 +6,8 @@ module Advertisements
     AfterDueDate = Class.new(StandardError)
     UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
-    ContentCantBeEmpty = Class.new(StandardError)
+    MissingContent = Class.new(StandardError)
+    MissingSuspendReason = Class.new(StandardError)
 
     def initialize(id, due_date_policy)
       @id = id
@@ -16,7 +17,7 @@ module Advertisements
 
     def publish(author_id, content)
       raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
-      raise ContentCantBeEmpty if content.nil? || content.empty?
+      raise MissingContent if content.nil? || content.strip.empty?
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
@@ -53,6 +54,7 @@ module Advertisements
 
     def suspend(reason)
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
+      raise MissingSuspendReason if reason.nil? || reason.strip.empty?
       stopped_at = @state == :on_hold ? @stopped_at : @due_date_policy.stop_time
       apply AdvertisementSuspended.new(
         data: {
@@ -85,7 +87,7 @@ module Advertisements
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(author_id)
-      raise ContentCantBeEmpty if new_content.nil? || new_content.empty?
+      raise MissingContent if new_content.nil? || new_content.empty?
       apply ContentHasChanged.new(
         data: {
           advertisement_id: @id,

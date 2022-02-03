@@ -32,11 +32,15 @@ module Advertisements
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
 
-      assert_raises(Advertisement::ContentCantBeEmpty) do
+      assert_raises(Advertisement::MissingContent) do
         act(PublishAdvertisement.new(advertisement_id, author_id, ""))
       end
 
-      assert_raises(Advertisement::ContentCantBeEmpty) do
+      assert_raises(Advertisement::MissingContent) do
+        act(PublishAdvertisement.new(advertisement_id, author_id, "     "))
+      end
+
+      assert_raises(Advertisement::MissingContent) do
         act(PublishAdvertisement.new(advertisement_id, author_id, nil))
       end
     end
