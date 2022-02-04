@@ -11,7 +11,7 @@ module Advertisements
       content = "Content: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
-      due_date = time_when_published + (60 * 60 * 24 * 14)
+      due_date = time_when_published + FakeDueDatePolicy::FAKE_VALID_FOR_SECONDS
 
       assert_events(
           stream,

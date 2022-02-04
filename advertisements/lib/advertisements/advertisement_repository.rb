@@ -2,11 +2,12 @@ module Advertisements
   class AdvertisementRepository
     def initialize(
       event_store = Rails.configuration.event_store,
-      clock = Rails.configuration.clock.call
+      clock = Rails.configuration.clock.call,
+      due_date_policy = Rails.configuration.advertisement_due_date_policy.call
     )
       @repository = AggregateRoot::Repository.new(event_store)
       @clock = clock
-      @due_date_policy = DueDatePolicy.new(clock)
+      @due_date_policy = due_date_policy
     end
 
     def with_advertisement(advertisement_id, &block)

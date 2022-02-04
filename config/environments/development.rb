@@ -76,4 +76,5 @@ Rails.application.configure do
 
   # DevMountJob config
   config.clock = -> { RealClock.new }
+  config.advertisement_due_date_policy = -> { Advertisements::DueDatePolicy.new(config.clock.call) }
 end

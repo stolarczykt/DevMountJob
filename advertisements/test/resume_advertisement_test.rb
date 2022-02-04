@@ -11,7 +11,7 @@ module Advertisements
       stream = "Advertisement$#{advertisement_id}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
-      original_due_date = time_when_published + (60 * 60 * 24 * 14)
+      original_due_date = time_when_published + FakeDueDatePolicy::FAKE_VALID_FOR_SECONDS
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),
         PutAdvertisementOnHold.new(advertisement_id, author_id)
