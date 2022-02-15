@@ -62,7 +62,7 @@ module Advertisements
       end
     end
 
-    test "suspend reason can't be nil nor empty" do
+    test "can't suspend when missing reason" do
       advertisement_id = SecureRandom.random_number
       author_id = SecureRandom.random_number
       content = "Content: #{SecureRandom.hex}"

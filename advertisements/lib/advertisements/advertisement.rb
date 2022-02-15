@@ -7,9 +7,13 @@ module Advertisements
     UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
     MissingContent = Class.new(StandardError)
+    MissingAuthor = Class.new(StandardError)
     MissingSuspendReason = Class.new(StandardError)
 
     def initialize(id, due_date_policy, clock)
+      raise ArgumentError if missing id
+      raise ArgumentError if missing due_date_policy
+      raise ArgumentError if missing clock
       @id = id
       @state = :draft
       @due_date_policy = due_date_policy
@@ -18,7 +22,8 @@ module Advertisements
 
     def publish(author_id, content)
       raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
-      raise MissingContent if content.nil? || content.strip.empty?
+      raise MissingContent if missing content
+      raise MissingAuthor if missing author_id
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
@@ -33,7 +38,7 @@ module Advertisements
       raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
       stop_time = @clock.now
-      raise AfterDueDate if @due_date < stop_time
+      raise AfterDueDate if stop_time > @due_date
       apply AdvertisementPutOnHold.new(
         data: {
           advertisement_id: @id,
@@ -55,7 +60,7 @@ module Advertisements
 
     def suspend(reason)
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
-      raise MissingSuspendReason if reason.nil? || reason.strip.empty?
+      raise MissingSuspendReason if missing reason
       stopped_at = @state == :on_hold ? @stopped_at : @clock.now
       apply AdvertisementSuspended.new(
         data: {
@@ -88,7 +93,8 @@ module Advertisements
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id.equal?(author_id)
-      raise MissingContent if new_content.nil? || new_content.empty?
+      raise MissingContent if missing new_content
+      raise AfterDueDate if @clock.now > @due_date
       apply ContentHasChanged.new(
         data: {
           advertisement_id: @id,
@@ -128,6 +134,17 @@ module Advertisements
     on AdvertisementUnblocked do |event|
       @state = :published
       @due_date = event.data[:due_date]
+    end
+
+    private
+
+    def missing(value)
+      case value
+      in String
+        value.nil? || value.strip.empty?
+      else
+        value.nil?
+      end
     end
   end
 end

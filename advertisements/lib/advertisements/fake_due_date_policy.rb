@@ -1,13 +1,14 @@
 module Advertisements
   class FakeDueDatePolicy
-    FAKE_VALID_FOR_SECONDS = 60 * 60
+    PUBLISH_FOR_SECONDS = 60 * 60 * 24
+    AFTER_DUE_DATE = PUBLISH_FOR_SECONDS + 60
 
     def initialize(clock)
       @clock = clock
     end
 
     def call
-      @clock.now + FAKE_VALID_FOR_SECONDS
+      @clock.now + PUBLISH_FOR_SECONDS
     end
 
     def recalculate(prev_due_date, stopped_at)

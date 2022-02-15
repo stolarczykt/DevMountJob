@@ -11,7 +11,40 @@ module Advertisements
       content = "Content: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
-      due_date = time_when_published + FakeDueDatePolicy::FAKE_VALID_FOR_SECONDS
+      due_date = time_when_published + FakeDueDatePolicy::PUBLISH_FOR_SECONDS
+
+      assert_events(
+          stream,
+          AdvertisementPublished.new(
+              data: {
+                  advertisement_id: advertisement_id,
+                  author_id: author_id,
+                  content: content,
+                  due_date: due_date
+              }
+          )
+      ) do
+        act(PublishAdvertisement.new(advertisement_id, author_id, content))
+      end
+    end
+
+    test 'fail to publish when missing author or content' do
+      advertisement_id = SecureRandom.random_number
+      stream = "Advertisement$#{advertisement_id}"
+      time_when_published = Time.now
+      travel_in_time_to(time_when_published)
+      due_date = time_when_published + FakeDueDatePolicy::PUBLISH_FOR_SECONDS
+
+      author_id = SecureRandom.random_number
+      content = "Content: #{SecureRandom.hex}"
+
+      assert_raises(Advertisement::MissingContent) do
+        act(PublishAdvertisement.new(advertisement_id, author_id, ""))
+      end
+
+      assert_raises(Advertisement::MissingAuthor) do
+        act(PublishAdvertisement.new(advertisement_id, "", content))
+      end
 
       assert_events(
           stream,
