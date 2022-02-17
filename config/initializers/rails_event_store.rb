@@ -23,6 +23,7 @@ Rails.configuration.to_prepare do
 
   # Register command handlers below
   Rails.configuration.command_bus.tap do |bus|
+    # Advertisements BC
     bus.register(Advertisements::ChangeContent, Advertisements::OnChangeContent.new)
     bus.register(Advertisements::PublishAdvertisement, Advertisements::OnPublishAdvertisement.new)
     bus.register(Advertisements::PutAdvertisementOnHold, Advertisements::OnPutAdvertisementOnHold.new)
@@ -30,5 +31,8 @@ Rails.configuration.to_prepare do
     bus.register(Advertisements::SuspendAdvertisement, Advertisements::OnSuspendAdvertisement.new)
     bus.register(Advertisements::UnblockAdvertisement, Advertisements::OnUnblockAdvertisement.new)
     bus.register(Advertisements::ExpireAdvertisement, Advertisements::OnExpireAdvertisement.new)
+
+    # Payments BC
+    bus.register(Payments::CreatePayment, Payments::OnCreatePayment.new)
   end
 end

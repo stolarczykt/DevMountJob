@@ -1,8 +1,5 @@
 module Advertisements
 
-  class Configuration
-  end
-
   class OnPublishAdvertisement
     def call(command)
       repository = AdvertisementRepository::new
