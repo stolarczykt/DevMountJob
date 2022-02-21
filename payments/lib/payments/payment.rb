@@ -23,6 +23,7 @@ module Payments
     end
 
     on PaymentCreated do |event|
+      @state = :created
       @advertisement_id = event.data[:advertisement_id]
     end
 

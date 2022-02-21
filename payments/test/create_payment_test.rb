@@ -5,9 +5,9 @@ module Payments
     include TestPlumbing
 
     test 'create payment' do
-      payment_id = SecureRandom.random_number
-      advertisement_id = SecureRandom.random_number
-      amount = SecureRandom.random_number
+      payment_id = SecureRandom.uuid
+      advertisement_id = SecureRandom.uuid
+      amount = SecureRandom.random_number(1..100)
       stream = "Payment$#{payment_id}"
 
       assert_events(
@@ -25,9 +25,9 @@ module Payments
     end
 
     test 'fail when missing advertisement or amount' do
-      payment_id = SecureRandom.random_number
-      advertisement_id = SecureRandom.random_number
-      amount = SecureRandom.random_number
+      payment_id = SecureRandom.uuid
+      advertisement_id = SecureRandom.uuid
+      amount = SecureRandom.random_number(1..100)
 
       assert_raises(Payment::MissingAdvertisement) do
         act(CreatePayment.new(payment_id, "", amount))
