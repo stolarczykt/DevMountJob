@@ -12,9 +12,9 @@ Below you can find the current list, which will be updated when a new post arriv
 1. ["See how I failed at my SaaS idea and what you will gain from it."](https://mrpicky.dev/see-how-i-failed-at-my-saas-idea-and-what-you-will-gain-from-it/) - a crucial one, as you will find there a detailed domain description, and knowing the domain in Domain-Driven Design is well... crucial ;)
 2. ["The story of how to NOT start a project."](https://mrpicky.dev/the-story-of-how-to-not-start-a-project/) - this one is rather optional but it sheds  some more light on how I failed actually. It can help you avoid some mistakes while working on your side projects. 
 3. ["This could be the biggest post about Big Picture Event Storming ever! And with examples!"](https://mrpicky.dev/this-could-be-the-biggest-post-about-big-picture-event-storming-ever-and-with-examples/) - we start crunching the domain knowledge here. You can't miss it.  
-4. The post about Process Level Event Storming - it's currently being reviewed - **coming soon**.
-5. The post about Design Level Event Storming - the text is ready, but I need to translate it into English - **coming soon**.
-6. First post about implementation, CQRS, Event Sourcing - yup, the one you see here ;). This one also needs to be translated to English - **coming soon**.
+4. ["Process Level Event Storming: let’s get this process started!"](https://mrpicky.dev/process-level-event-storming-lets-get-this-process-started/) - modeling sub-processes that will address our business requirements and issues.
+5. ["Design Level Event Storming with examples!"](https://mrpicky.dev/design-level-event-storming-with-examples/) - proposing some designs for our solution.
+6. First post about implementation, CQRS, Event Sourcing - it's currently being reviewed - **coming soon**.
 7. And the following  ones - TBD.
 
 Subscribe to my [newsletter](https://mrpicky.dev/loot/) and be up to date with all the new posts!
@@ -31,7 +31,7 @@ a DDD approach and use the state of the art tech stack ;)
 When I was developing this project for the first time, I wrote an article about the whole idea, my thoughts, and 
 solutions to fix the broken hiring process. The post is still available 
 [here](https://medium.com/@StolarczykT/lets-turn-the-dev-hiring-process-upside-down-62620a3f5c7c).
-It's pretty long,old, and not essential in the context of the project here, but it can show you the big picture. 
+It's pretty long, old, and not essential in the context of the project here, but it can show you the big picture. 
 [The first post](https://mrpicky.dev/see-how-i-failed-at-my-saas-idea-and-what-you-will-gain-from-it/)
 of the series might be more interesting for you, as I describe the domain in detail and why I want to share my experiences. This one is crucial if 
 you want to understand the project's code in this repository and gain domain knowledge.
@@ -65,12 +65,14 @@ Here we need to climb down and model sub-processes that will address our busines
 Back in the BPES workshop, we noticed some smaller, autonomic sub-processes within the whole process. Now we can 
 focus on each of them and take care of the details. PLES gives us a few additional elements that will help us in this job. 
 These elements are: read model, command, system, policy. 
-To get more details about the PLES you need to wait a bit as the fourth post is in review at the moment.
+To get more details about the PLES you need to read this [post](https://mrpicky.dev/process-level-event-storming-lets-get-this-process-started/).
+![Process Level Event Storming](https://mrpicky.dev/wp-content/uploads/2021/11/PL-preparation.jpg)
 
 ### Design Level Event Storming (DLES)
 It's the cherry on top. You may not believe it, but we are going to... design here. We are going to propose some models 
-that will support processes identified during PLES. You will find all the details about how I did it in the future, in the fifth post. 
-Subscribe to my [newsletter](https://mrpicky.dev/loot/) so that you don’t miss it!
+that will support processes identified during PLES. You will find all the details about how I did it in 
+this [post](https://mrpicky.dev/design-level-event-storming-with-examples/).
+![Design Level Event Storming](https://mrpicky.dev/wp-content/uploads/2021/12/DLES-preparation_v2-scaled.jpg)
 
 ## Java fanboy programming in Ruby?
 Even though I'm a Java fanboy, I decided to implement this project in Ruby. Currently, I'm writing the first post about 
