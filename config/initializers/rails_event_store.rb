@@ -34,5 +34,6 @@ Rails.configuration.to_prepare do
 
     # Payments BC
     bus.register(Payments::CreatePayment, Payments::OnCreatePayment.new)
+    bus.register(Payments::FailPayment, Payments::OnFailPayment.new)
   end
 end

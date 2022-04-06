@@ -4,10 +4,13 @@ module Payments
 
     MissingAdvertisement = Class.new(StandardError)
     MissingAmount = Class.new(StandardError)
+    MissingFailReason = Class.new(StandardError)
+    UnexpectedStateTransition = Class.new(StandardError)
 
     def initialize(id)
       raise ArgumentError if missing id
       @id = id
+      @state = :init
     end
 
     def pay_for(advertisement_id, amount)
@@ -22,9 +25,25 @@ module Payments
       )
     end
 
+    def fail_due_to(reason)
+      raise UnexpectedStateTransition.new("Fail allowed only from [#{:created}], but was [#{@state}]") unless @state.equal?(:created)
+      raise MissingFailReason if missing reason
+      apply PaymentFailed.new(
+        data: {
+          payment_id: @id,
+          reason: reason
+        }
+      )
+    end
+
     on PaymentCreated do |event|
       @state = :created
       @advertisement_id = event.data[:advertisement_id]
+    end
+
+    on PaymentFailed do |event|
+      @state = :failed
+      @reason = event.data[:reason]
     end
 
     private

@@ -8,4 +8,13 @@ module Payments
       end
     end
   end
+
+  class OnFailPayment
+    def call(command)
+      repository = PaymentsRepository::new
+      repository.with_payment(command.payment_id) do |payment|
+        payment.fail_due_to(command.reason)
+      end
+    end
+  end
 end
