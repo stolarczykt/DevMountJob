@@ -10,7 +10,7 @@ module Payments
     def initialize(id)
       raise ArgumentError if missing id
       @id = id
-      @state = :init
+      @state = :initialized
     end
 
     def pay_for(advertisement_id, amount)
@@ -21,6 +21,15 @@ module Payments
           payment_id: @id,
           advertisement_id: advertisement_id,
           amount: amount
+        }
+      )
+    end
+
+    def finalize
+      raise UnexpectedStateTransition.new("Finalize allowed only from [#{:created}], but was [#{@state}]") unless @state.equal?(:created)
+      apply PaymentFinalized.new(
+        data: {
+          payment_id: @id
         }
       )
     end
@@ -39,6 +48,10 @@ module Payments
     on PaymentCreated do |event|
       @state = :created
       @advertisement_id = event.data[:advertisement_id]
+    end
+
+    on PaymentFinalized do |event|
+      @state = :finalized
     end
 
     on PaymentFailed do |event|

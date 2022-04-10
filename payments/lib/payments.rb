@@ -17,4 +17,13 @@ module Payments
       end
     end
   end
+
+  class OnFinalizePayment
+    def call(command)
+      repository = PaymentsRepository::new
+      repository.with_payment(command.payment_id) do |payment|
+        payment.finalize
+      end
+    end
+  end
 end

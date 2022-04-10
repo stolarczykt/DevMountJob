@@ -47,23 +47,23 @@ module Payments
       error = assert_raises(Payment::UnexpectedStateTransition) do
         act(FailPayment.new(payment_id, reason))
       end
-      assert_equal "Fail allowed only from [created], but was [init]", error.message
+      assert_equal "Fail allowed only from [created], but was [initialized]", error.message
     end
 
-    test "can't fail if payment paid up" do
+    test "can't fail if payment finalized" do
       payment_id = SecureRandom.uuid
       advertisement_id = SecureRandom.random_number
       amount = SecureRandom.random_number(1..100)
       reason = "Payment failed due to: not enough money"
       arrange(
         CreatePayment.new(payment_id, advertisement_id, amount),
-        PayUpPayment.new(payment_id)
+        FinalizePayment.new(payment_id)
       )
 
       error = assert_raises(Payment::UnexpectedStateTransition) do
-        act(FailPayment.new(advertisement_id, reason))
+        act(FailPayment.new(payment_id, reason))
       end
-      assert_equal "Fail allowed only from [created], but was [paid]", error.message
+      assert_equal "Fail allowed only from [created], but was [finalized]", error.message
     end
   end
 end
