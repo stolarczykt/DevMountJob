@@ -13,7 +13,8 @@ module Payments
       @state = :initialized
     end
 
-    def pay_for(advertisement_id, amount)
+    def create_for(advertisement_id, amount)
+      raise UnexpectedStateTransition.new("Create allowed only from [#{:initialized}], but was [#{@state}]") unless @state.equal?(:initialized)
       raise MissingAdvertisement if missing advertisement_id
       raise MissingAmount if amount <= 0
       apply PaymentCreated.new(
@@ -45,18 +46,16 @@ module Payments
       )
     end
 
-    on PaymentCreated do |event|
+    on PaymentCreated do |_|
       @state = :created
-      @advertisement_id = event.data[:advertisement_id]
     end
 
-    on PaymentFinalized do |event|
+    on PaymentFinalized do |_|
       @state = :finalized
     end
 
-    on PaymentFailed do |event|
+    on PaymentFailed do |_|
       @state = :failed
-      @reason = event.data[:reason]
     end
 
     private

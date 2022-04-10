@@ -4,7 +4,7 @@ module Payments
     def call(command)
       repository = PaymentsRepository::new
       repository.with_payment(command.payment_id) do |payment|
-        payment.pay_for(command.advertisement_id, command.amount)
+        payment.create_for(command.advertisement_id, command.amount)
       end
     end
   end

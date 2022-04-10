@@ -24,6 +24,20 @@ module Payments
       end
     end
 
+    test "can't create already created payment" do
+      payment_id = SecureRandom.uuid
+      advertisement_id = SecureRandom.uuid
+      amount = SecureRandom.random_number(1..100)
+      arrange(
+        CreatePayment.new(payment_id, advertisement_id, amount)
+      )
+
+      error = assert_raises(Payment::UnexpectedStateTransition) do
+        act(CreatePayment.new(payment_id, advertisement_id, amount))
+      end
+      assert_equal "Create allowed only from [initialized], but was [created]", error.message
+    end
+
     test 'fail when missing advertisement or amount' do
       payment_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid

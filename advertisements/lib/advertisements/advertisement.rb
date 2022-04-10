@@ -109,11 +109,11 @@ module Advertisements
       @due_date = event.data[:due_date]
     end
 
-    on AdvertisementExpired do |event|
+    on AdvertisementExpired do |_|
       @state = :expired
     end
 
-    on ContentHasChanged do |event|
+    on ContentHasChanged do |_|
     end
 
     on AdvertisementPutOnHold do |event|
