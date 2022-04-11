@@ -5,9 +5,9 @@ module Advertisements
     include TestPlumbing
 
     test "suspend advertisement" do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
-      author_id = SecureRandom.random_number
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
@@ -31,9 +31,9 @@ module Advertisements
     end
 
     test "suspend advertisement when on hold - take stop time from on hold" do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
-      author_id = SecureRandom.random_number
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       time_when_published = Time.now
@@ -63,8 +63,8 @@ module Advertisements
     end
 
     test "can't suspend when missing reason" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(PublishAdvertisement.new(advertisement_id, author_id, content))
 
@@ -82,7 +82,7 @@ module Advertisements
     end
 
     test "advertisement can't be suspended if draft" do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       suspend_reason = "Reason: #{SecureRandom.hex}"
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
@@ -92,8 +92,8 @@ module Advertisements
     end
 
     test "advertisement can't be suspended if expired" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
@@ -108,8 +108,8 @@ module Advertisements
     end
 
     test "advertisement can't be suspended if already suspended" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(

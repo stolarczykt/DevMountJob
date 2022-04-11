@@ -6,7 +6,7 @@ module Payments
 
     test 'payment finalized' do
       payment_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       amount = SecureRandom.random_number(1..100)
       stream = "Payment$#{payment_id}"
       arrange(
@@ -36,7 +36,7 @@ module Payments
 
     test "can't finalize if payment failed" do
       payment_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       amount = SecureRandom.random_number(1..100)
       reason = "Payment failed due to: not enough money"
       arrange(

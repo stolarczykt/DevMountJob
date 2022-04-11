@@ -6,8 +6,8 @@ module Advertisements
     include TestPlumbing
 
     test 'change advertisement content' do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       original_content = "Content: #{SecureRandom.hex}"
       new_content = "Random content: #{SecureRandom.hex}"
       arrange(PublishAdvertisement.new(advertisement_id, author_id, original_content))
@@ -26,8 +26,8 @@ module Advertisements
     end
 
     test "can't change the content if not provided" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       original_content = "Content: #{SecureRandom.hex}"
       arrange(PublishAdvertisement.new(advertisement_id, author_id, original_content))
 
@@ -41,8 +41,8 @@ module Advertisements
     end
 
     test "can't change the content after due date" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       original_content = "Content: #{SecureRandom.hex}"
       new_content = "Random content: #{SecureRandom.hex}"
       publish_time = Time.now
@@ -57,9 +57,9 @@ module Advertisements
     end
 
     test 'do not allow changing content if not an author' do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
-      not_an_author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
+      not_an_author_id = SecureRandom.uuid
       original_content = "Content: #{SecureRandom.hex}"
       new_content = "Random content: #{SecureRandom.hex}"
       arrange(PublishAdvertisement.new(advertisement_id, author_id, original_content))

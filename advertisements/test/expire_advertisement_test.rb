@@ -5,8 +5,8 @@ module Advertisements
     include TestPlumbing
 
     test 'expire advertisement' do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
       content = "Content: #{SecureRandom.hex}"
       arrange(
@@ -26,7 +26,7 @@ module Advertisements
     end
 
     test "draft can't be expired" do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
@@ -35,8 +35,8 @@ module Advertisements
     end
 
     test "advertisement can't be expired if suspended" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
@@ -51,8 +51,8 @@ module Advertisements
     end
 
     test "advertisement can't be expired if on hold" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),
@@ -66,8 +66,8 @@ module Advertisements
     end
 
     test "advertisement can't be expired if already expired" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),

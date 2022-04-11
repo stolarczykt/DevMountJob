@@ -5,9 +5,9 @@ module Advertisements
     include TestPlumbing
 
     test 'put advertisement on hold by author' do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
-      author_id = SecureRandom.random_number
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
@@ -29,8 +29,8 @@ module Advertisements
     end
 
     test "advertisement can't be put on hold after due date" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
@@ -43,10 +43,10 @@ module Advertisements
     end
 
     test 'advertisement can be put on hold only by author' do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
-      random_requester_id = SecureRandom.random_number
+      random_requester_id = SecureRandom.uuid
       arrange(PublishAdvertisement.new(advertisement_id, author_id, content))
 
       assert_raises(Advertisement::NotAnAuthorOfAdvertisement) do
@@ -55,8 +55,8 @@ module Advertisements
     end
 
     test "advertisement can't be put on hold if not published" do
-      advertisement_id = SecureRandom.random_number
-      random_requester_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      random_requester_id = SecureRandom.uuid
 
       error = assert_raises(Advertisement::UnexpectedStateTransition) do
         act(PutAdvertisementOnHold.new(advertisement_id, random_requester_id))
@@ -65,11 +65,11 @@ module Advertisements
     end
 
     test "advertisement can't be put on hold if suspended" do
-      advertisement_id = SecureRandom.random_number
-      random_requester_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      random_requester_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
-      author_id = SecureRandom.random_number
+      author_id = SecureRandom.uuid
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
@@ -82,9 +82,9 @@ module Advertisements
     end
 
     test "advertisement can't be put on hold if expired" do
-      advertisement_id = SecureRandom.random_number
-      random_requester_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      random_requester_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),
@@ -98,8 +98,8 @@ module Advertisements
     end
 
     test "advertisement can't be put on hold if already on hold" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),

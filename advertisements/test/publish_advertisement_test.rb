@@ -5,8 +5,8 @@ module Advertisements
     include TestPlumbing
 
     test 'publish advertisement' do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
       content = "Content: #{SecureRandom.hex}"
       time_when_published = Time.now
@@ -29,13 +29,13 @@ module Advertisements
     end
 
     test 'fail to publish when missing author or content' do
-      advertisement_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
       stream = "Advertisement$#{advertisement_id}"
       time_when_published = Time.now
       travel_in_time_to(time_when_published)
       due_date = time_when_published + FakeDueDatePolicy::PUBLISH_FOR_SECONDS
 
-      author_id = SecureRandom.random_number
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
 
       assert_raises(Advertisement::MissingContent) do
@@ -62,8 +62,8 @@ module Advertisements
     end
 
     test "can't publish advertisement when empty or nil content" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
 
       assert_raises(Advertisement::MissingContent) do
         act(PublishAdvertisement.new(advertisement_id, author_id, ""))
@@ -79,8 +79,8 @@ module Advertisements
     end
 
     test "can't be publish twice in a row" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content)
@@ -93,8 +93,8 @@ module Advertisements
     end
 
     test "can't publish on hold advertisement" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),
@@ -108,8 +108,8 @@ module Advertisements
     end
 
     test "can't publish suspended advertisement" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       suspend_reason = "Reason: #{SecureRandom.hex}"
       arrange(
@@ -124,8 +124,8 @@ module Advertisements
     end
 
     test "can't publish expired advertisement" do
-      advertisement_id = SecureRandom.random_number
-      author_id = SecureRandom.random_number
+      advertisement_id = SecureRandom.uuid
+      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
       arrange(
         PublishAdvertisement.new(advertisement_id, author_id, content),

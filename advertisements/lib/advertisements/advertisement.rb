@@ -36,7 +36,7 @@ module Advertisements
 
     def put_on_hold(requester_id)
       raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
-      raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
+      raise NotAnAuthorOfAdvertisement unless @author_id === requester_id
       stop_time = @clock.now
       raise AfterDueDate if stop_time > @due_date
       apply AdvertisementPutOnHold.new(
@@ -49,7 +49,7 @@ module Advertisements
 
     def resume(requester_id)
       raise UnexpectedStateTransition.new("Resume allowed only from [#{:on_hold}], but was [#{@state}]") unless @state.equal?(:on_hold)
-      raise NotAnAuthorOfAdvertisement unless @author_id.equal?(requester_id)
+      raise NotAnAuthorOfAdvertisement unless @author_id === requester_id
       apply AdvertisementResumed.new(
         data: {
           advertisement_id: @id,
@@ -92,7 +92,7 @@ module Advertisements
 
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
-      raise NotAnAuthorOfAdvertisement unless @author_id.equal?(author_id)
+      raise NotAnAuthorOfAdvertisement unless @author_id === author_id
       raise MissingContent if missing new_content
       raise AfterDueDate if @clock.now > @due_date
       apply ContentHasChanged.new(
