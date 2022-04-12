@@ -86,10 +86,11 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id, content)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id, content))
       end
-      assert_equal "Publish allowed only from [draft], but was [published]", error.message
+      assert_equal :published, error.current_state
+      assert_equal :draft, error.desired_states
     end
 
     test "can't publish on hold advertisement" do
@@ -101,10 +102,11 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id, content))
       end
-      assert_equal "Publish allowed only from [draft], but was [on_hold]", error.message
+      assert_equal :on_hold, error.current_state
+      assert_equal :draft, error.desired_states
     end
 
     test "can't publish suspended advertisement" do
@@ -117,10 +119,11 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id, content))
       end
-      assert_equal "Publish allowed only from [draft], but was [suspended]", error.message
+      assert_equal :suspended, error.current_state
+      assert_equal :draft, error.desired_states
     end
 
     test "can't publish expired advertisement" do
@@ -132,10 +135,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PublishAdvertisement.new(advertisement_id, author_id, content))
       end
-      assert_equal "Publish allowed only from [draft], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal :draft, error.desired_states
     end
   end
 end

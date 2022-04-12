@@ -85,10 +85,11 @@ module Advertisements
       advertisement_id = SecureRandom.uuid
       suspend_reason = "Reason: #{SecureRandom.hex}"
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
-      assert_equal "Suspend allowed only from [published, on_hold], but was [draft]", error.message
+      assert_equal :draft, error.current_state
+      assert_equal [:published, :on_hold].to_set, error.desired_states.to_set
     end
 
     test "advertisement can't be suspended if expired" do
@@ -101,10 +102,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
-      assert_equal "Suspend allowed only from [published, on_hold], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal [:published, :on_hold].to_set, error.desired_states.to_set
     end
 
     test "advertisement can't be suspended if already suspended" do
@@ -117,10 +119,11 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(SuspendAdvertisement.new(advertisement_id, suspend_reason))
       end
-      assert_equal "Suspend allowed only from [published, on_hold], but was [suspended]", error.message
+      assert_equal :suspended, error.current_state
+      assert_equal [:published, :on_hold].to_set, error.desired_states.to_set
     end
   end
 end

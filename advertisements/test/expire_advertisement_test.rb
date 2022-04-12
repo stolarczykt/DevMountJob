@@ -28,10 +28,11 @@ module Advertisements
     test "draft can't be expired" do
       advertisement_id = SecureRandom.uuid
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
-      assert_equal "Expire allowed only from [published], but was [draft]", error.message
+      assert_equal :draft, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be expired if suspended" do
@@ -44,10 +45,11 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
-      assert_equal "Expire allowed only from [published], but was [suspended]", error.message
+      assert_equal :suspended, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be expired if on hold" do
@@ -59,10 +61,11 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
-      assert_equal "Expire allowed only from [published], but was [on_hold]", error.message
+      assert_equal :on_hold, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be expired if already expired" do
@@ -74,10 +77,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ExpireAdvertisement.new(advertisement_id))
       end
-      assert_equal "Expire allowed only from [published], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal :published, error.desired_states
     end
   end
 end

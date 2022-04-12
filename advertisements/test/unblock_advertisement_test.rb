@@ -36,10 +36,11 @@ module Advertisements
     test "draft can't be unblocked" do
       advertisement_id = SecureRandom.uuid
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
-      assert_equal "Unblock allowed only from [suspended], but was [draft]", error.message
+      assert_equal :draft, error.current_state
+      assert_equal :suspended, error.desired_states
     end
 
     test "advertisement can't be unblocked if on hold" do
@@ -51,10 +52,11 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
-      assert_equal "Unblock allowed only from [suspended], but was [on_hold]", error.message
+      assert_equal :on_hold, error.current_state
+      assert_equal :suspended, error.desired_states
     end
 
     test "advertisement can't be unblocked if expired" do
@@ -66,10 +68,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
-      assert_equal "Unblock allowed only from [suspended], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal :suspended, error.desired_states
     end
 
     test "advertisement can't be unblocked if published" do
@@ -80,10 +83,11 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id, content)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(UnblockAdvertisement.new(advertisement_id))
       end
-      assert_equal "Unblock allowed only from [suspended], but was [published]", error.message
+      assert_equal :published, error.current_state
+      assert_equal :suspended, error.desired_states
     end
   end
 end

@@ -51,10 +51,11 @@ module Advertisements
       advertisement_id = SecureRandom.uuid
       author_id = SecureRandom.uuid
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
-      assert_equal "Resume allowed only from [on_hold], but was [draft]", error.message
+      assert_equal :draft, error.current_state
+      assert_equal :on_hold, error.desired_states
     end
 
     test "advertisement can't be resumed if suspended" do
@@ -67,10 +68,11 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
-      assert_equal "Resume allowed only from [on_hold], but was [suspended]", error.message
+      assert_equal :suspended, error.current_state
+      assert_equal :on_hold, error.desired_states
     end
 
     test "advertisement can't be resumed if expired" do
@@ -82,10 +84,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
-      assert_equal "Resume allowed only from [on_hold], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal :on_hold, error.desired_states
     end
 
     test "advertisement can't be resumed if published" do
@@ -96,10 +99,11 @@ module Advertisements
         PublishAdvertisement.new(advertisement_id, author_id, content)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(ResumeAdvertisement.new(advertisement_id, author_id))
       end
-      assert_equal "Resume allowed only from [on_hold], but was [published]", error.message
+      assert_equal :published, error.current_state
+      assert_equal :on_hold, error.desired_states
     end
   end
 end

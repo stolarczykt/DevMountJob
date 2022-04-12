@@ -28,10 +28,11 @@ module Payments
     test "can't finalize if no payment created" do
       payment_id = SecureRandom.uuid
 
-      error = assert_raises(Payment::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(FinalizePayment.new(payment_id))
       end
-      assert_equal "Finalize allowed only from [created], but was [initialized]", error.message
+      assert_equal :initialized, error.current_state
+      assert_equal :created, error.desired_states
     end
 
     test "can't finalize if payment failed" do
@@ -44,10 +45,11 @@ module Payments
         FailPayment.new(payment_id, reason)
       )
 
-      error = assert_raises(Payment::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(FinalizePayment.new(payment_id))
       end
-      assert_equal "Finalize allowed only from [created], but was [failed]", error.message
+      assert_equal :failed, error.current_state
+      assert_equal :created, error.desired_states
     end
   end
 end

@@ -44,10 +44,11 @@ module Payments
       payment_id = SecureRandom.uuid
       reason = "Payment failed due to: not enough money"
 
-      error = assert_raises(Payment::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(FailPayment.new(payment_id, reason))
       end
-      assert_equal "Fail allowed only from [created], but was [initialized]", error.message
+      assert_equal :initialized, error.current_state
+      assert_equal :created, error.desired_states
     end
 
     test "can't fail if payment finalized" do
@@ -60,10 +61,11 @@ module Payments
         FinalizePayment.new(payment_id)
       )
 
-      error = assert_raises(Payment::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(FailPayment.new(payment_id, reason))
       end
-      assert_equal "Fail allowed only from [created], but was [finalized]", error.message
+      assert_equal :finalized, error.current_state
+      assert_equal :created, error.desired_states
     end
   end
 end

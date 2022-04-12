@@ -32,10 +32,11 @@ module Payments
         CreatePayment.new(payment_id, advertisement_id, amount)
       )
 
-      error = assert_raises(Payment::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(CreatePayment.new(payment_id, advertisement_id, amount))
       end
-      assert_equal "Create allowed only from [initialized], but was [created]", error.message
+      assert_equal :created, error.current_state
+      assert_equal :initialized, error.desired_states
     end
 
     test 'fail when missing advertisement or amount' do

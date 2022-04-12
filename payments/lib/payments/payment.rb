@@ -5,7 +5,6 @@ module Payments
     MissingAdvertisement = Class.new(StandardError)
     MissingAmount = Class.new(StandardError)
     MissingFailReason = Class.new(StandardError)
-    UnexpectedStateTransition = Class.new(StandardError)
 
     def initialize(id)
       raise ArgumentError if id.nil?
@@ -14,7 +13,7 @@ module Payments
     end
 
     def create_for(advertisement_id, amount)
-      raise UnexpectedStateTransition.new("Create allowed only from [#{:initialized}], but was [#{@state}]") unless @state.equal?(:initialized)
+      raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
       raise MissingAdvertisement if advertisement_id.nil?
       raise MissingAmount if amount <= 0
       apply PaymentCreated.new(
@@ -27,7 +26,7 @@ module Payments
     end
 
     def finalize
-      raise UnexpectedStateTransition.new("Finalize allowed only from [#{:created}], but was [#{@state}]") unless @state.equal?(:created)
+      raise UnexpectedStateTransition.new(@state, :created) unless @state.equal?(:created)
       apply PaymentFinalized.new(
         data: {
           payment_id: @id
@@ -36,7 +35,7 @@ module Payments
     end
 
     def fail_due_to(reason)
-      raise UnexpectedStateTransition.new("Fail allowed only from [#{:created}], but was [#{@state}]") unless @state.equal?(:created)
+      raise UnexpectedStateTransition.new(@state, :created) unless @state.equal?(:created)
       raise MissingFailReason if reason.nil? || reason.strip.empty?
       apply PaymentFailed.new(
         data: {

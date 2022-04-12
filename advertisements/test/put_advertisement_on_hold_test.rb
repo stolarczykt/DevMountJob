@@ -58,10 +58,11 @@ module Advertisements
       advertisement_id = SecureRandom.uuid
       random_requester_id = SecureRandom.uuid
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PutAdvertisementOnHold.new(advertisement_id, random_requester_id))
       end
-      assert_equal "Put on hold allowed only from [published], but was [draft]", error.message
+      assert_equal :draft, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be put on hold if suspended" do
@@ -75,10 +76,11 @@ module Advertisements
         SuspendAdvertisement.new(advertisement_id, suspend_reason)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PutAdvertisementOnHold.new(advertisement_id, random_requester_id))
       end
-      assert_equal "Put on hold allowed only from [published], but was [suspended]", error.message
+      assert_equal :suspended, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be put on hold if expired" do
@@ -91,10 +93,11 @@ module Advertisements
         ExpireAdvertisement.new(advertisement_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PutAdvertisementOnHold.new(advertisement_id, random_requester_id))
       end
-      assert_equal "Put on hold allowed only from [published], but was [expired]", error.message
+      assert_equal :expired, error.current_state
+      assert_equal :published, error.desired_states
     end
 
     test "advertisement can't be put on hold if already on hold" do
@@ -106,10 +109,11 @@ module Advertisements
         PutAdvertisementOnHold.new(advertisement_id, author_id)
       )
 
-      error = assert_raises(Advertisement::UnexpectedStateTransition) do
+      error = assert_raises(UnexpectedStateTransition) do
         act(PutAdvertisementOnHold.new(advertisement_id, author_id))
       end
-      assert_equal "Put on hold allowed only from [published], but was [on_hold]", error.message
+      assert_equal :on_hold, error.current_state
+      assert_equal :published, error.desired_states
     end
 
   end

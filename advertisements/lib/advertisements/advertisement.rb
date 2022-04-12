@@ -4,7 +4,6 @@ module Advertisements
 
     NotPublished = Class.new(StandardError)
     AfterDueDate = Class.new(StandardError)
-    UnexpectedStateTransition = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
     MissingContent = Class.new(StandardError)
     MissingAuthor = Class.new(StandardError)
@@ -21,7 +20,7 @@ module Advertisements
     end
 
     def publish(author_id, content)
-      raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
+      raise UnexpectedStateTransition.new(@state, :draft) unless @state.equal?(:draft)
       raise MissingContent if content.nil? || content.strip.empty?
       raise MissingAuthor if author_id.nil?
       apply AdvertisementPublished.new(
@@ -35,7 +34,7 @@ module Advertisements
     end
 
     def put_on_hold(requester_id)
-      raise UnexpectedStateTransition.new("Put on hold allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
+      raise UnexpectedStateTransition.new(@state, :published) unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id === requester_id
       stop_time = @clock.now
       raise AfterDueDate if stop_time > @due_date
@@ -48,7 +47,7 @@ module Advertisements
     end
 
     def resume(requester_id)
-      raise UnexpectedStateTransition.new("Resume allowed only from [#{:on_hold}], but was [#{@state}]") unless @state.equal?(:on_hold)
+      raise UnexpectedStateTransition.new(@state, :on_hold) unless @state.equal?(:on_hold)
       raise NotAnAuthorOfAdvertisement unless @author_id === requester_id
       apply AdvertisementResumed.new(
         data: {
@@ -59,7 +58,7 @@ module Advertisements
     end
 
     def suspend(reason)
-      raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
+      raise UnexpectedStateTransition.new(@state, [:published, :on_hold]) unless [:published, :on_hold].include?(@state)
       raise MissingSuspendReason if reason.nil? || reason.strip.empty?
       stopped_at = @state == :on_hold ? @stopped_at : @clock.now
       apply AdvertisementSuspended.new(
@@ -72,7 +71,7 @@ module Advertisements
     end
 
     def unblock
-      raise UnexpectedStateTransition.new("Unblock allowed only from [#{:suspended}], but was [#{@state}]") unless @state.equal?(:suspended)
+      raise UnexpectedStateTransition.new(@state, :suspended) unless @state.equal?(:suspended)
       apply AdvertisementUnblocked.new(
         data: {
           advertisement_id: @id,
@@ -82,7 +81,7 @@ module Advertisements
     end
 
     def expire
-      raise UnexpectedStateTransition.new("Expire allowed only from [#{:published}], but was [#{@state}]") unless @state.equal?(:published)
+      raise UnexpectedStateTransition.new(@state, :published) unless @state.equal?(:published)
       apply AdvertisementExpired.new(
         data: {
           advertisement_id: @id
