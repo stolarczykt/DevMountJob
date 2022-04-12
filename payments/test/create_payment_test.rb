@@ -44,7 +44,7 @@ module Payments
       amount = SecureRandom.random_number(1..100)
 
       assert_raises(Payment::MissingAdvertisement) do
-        act(CreatePayment.new(payment_id, "", amount))
+        act(CreatePayment.new(payment_id, nil, amount))
       end
 
       assert_raises(Payment::MissingAmount) do

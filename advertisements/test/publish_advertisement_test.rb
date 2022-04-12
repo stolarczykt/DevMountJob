@@ -43,7 +43,7 @@ module Advertisements
       end
 
       assert_raises(Advertisement::MissingAuthor) do
-        act(PublishAdvertisement.new(advertisement_id, "", content))
+        act(PublishAdvertisement.new(advertisement_id, nil, content))
       end
 
       assert_events(

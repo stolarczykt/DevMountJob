@@ -11,9 +11,9 @@ module Advertisements
     MissingSuspendReason = Class.new(StandardError)
 
     def initialize(id, due_date_policy, clock)
-      raise ArgumentError if missing id
-      raise ArgumentError if missing due_date_policy
-      raise ArgumentError if missing clock
+      raise ArgumentError if id.nil?
+      raise ArgumentError if due_date_policy.nil?
+      raise ArgumentError if clock.nil?
       @id = id
       @state = :draft
       @due_date_policy = due_date_policy
@@ -22,8 +22,8 @@ module Advertisements
 
     def publish(author_id, content)
       raise UnexpectedStateTransition.new("Publish allowed only from [#{:draft}], but was [#{@state}]") unless @state.equal?(:draft)
-      raise MissingContent if missing content
-      raise MissingAuthor if missing author_id
+      raise MissingContent if content.nil? || content.strip.empty?
+      raise MissingAuthor if author_id.nil?
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
@@ -60,7 +60,7 @@ module Advertisements
 
     def suspend(reason)
       raise UnexpectedStateTransition.new("Suspend allowed only from [#{[:published, :on_hold].join(", ")}], but was [#{@state}]") unless [:published, :on_hold].include?(@state)
-      raise MissingSuspendReason if missing reason
+      raise MissingSuspendReason if reason.nil? || reason.strip.empty?
       stopped_at = @state == :on_hold ? @stopped_at : @clock.now
       apply AdvertisementSuspended.new(
         data: {
@@ -93,7 +93,7 @@ module Advertisements
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id === author_id
-      raise MissingContent if missing new_content
+      raise MissingContent if new_content.nil? || new_content.strip.empty?
       raise AfterDueDate if @clock.now > @due_date
       apply ContentHasChanged.new(
         data: {
@@ -134,17 +134,6 @@ module Advertisements
     on AdvertisementUnblocked do |event|
       @state = :published
       @due_date = event.data[:due_date]
-    end
-
-    private
-
-    def missing(value)
-      case value
-      in String
-        value.nil? || value.strip.empty?
-      else
-        value.nil?
-      end
     end
   end
 end
