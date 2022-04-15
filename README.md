@@ -14,7 +14,7 @@ Below you can find the current list, which will be updated when a new post arriv
 3. ["This could be the biggest post about Big Picture Event Storming ever! And with examples!"](https://mrpicky.dev/this-could-be-the-biggest-post-about-big-picture-event-storming-ever-and-with-examples/) - we start crunching the domain knowledge here. You can't miss it.  
 4. ["Process Level Event Storming: let’s get this process started!"](https://mrpicky.dev/process-level-event-storming-lets-get-this-process-started/) - modeling sub-processes that will address our business requirements and issues.
 5. ["Design Level Event Storming with examples!"](https://mrpicky.dev/design-level-event-storming-with-examples/) - proposing some designs for our solution.
-6. First post about implementation, CQRS, Event Sourcing - it's currently being reviewed - **coming soon**.
+6. ["My first event-sourced aggregate in Ruby…"](https://mrpicky.dev/my-first-event-sourced-aggregate-in-ruby/) - the first post about the implementation, CQRS, Event Sourcing.
 7. And the following  ones - TBD.
 
 Subscribe to my [newsletter](https://mrpicky.dev/loot/) and be up to date with all the new posts!
@@ -75,9 +75,9 @@ this [post](https://mrpicky.dev/design-level-event-storming-with-examples/).
 ![Design Level Event Storming](https://mrpicky.dev/wp-content/uploads/2021/12/DLES-preparation_v2-scaled.jpg)
 
 ## Java fanboy programming in Ruby?
-Even though I'm a Java fanboy, I decided to implement this project in Ruby. Currently, I'm writing the first post about 
-the implementation where I’ll describe it in greater detail and will also talk about the motivation behind it. When it's ready, I will, of course, update 
-the README, and I will encourage you to read it as I will also explain some concepts like CQRS and Event Sourcing there. 
+Even though I'm a Java fanboy, I decided to implement this project in Ruby. In [the first post about 
+the implementation](https://mrpicky.dev/my-first-event-sourced-aggregate-in-ruby/) I describe it in greater detail and 
+also talk about the motivation behind it. I also explain some concepts like CQRS and Event Sourcing there. 
 To sum it up, I find the [Rails Event Store](https://railseventstore.org/) very easy to use, and it helps to focus on 
 the business logic and not on the glue code for commands and events. I also know [Arkency's](https://arkency.com/)
 approach to DDD, and it resonates with me. Last but not least, Ruby was on my to-do list quite long, so here I am.
