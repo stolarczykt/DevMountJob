@@ -36,5 +36,9 @@ Rails.configuration.to_prepare do
     bus.register(Payments::CreatePayment, Payments::OnCreatePayment.new)
     bus.register(Payments::FailPayment, Payments::OnFailPayment.new)
     bus.register(Payments::FinalizePayment, Payments::OnFinalizePayment.new)
+
+    # Offering BC
+    bus.register(Offering::MakeAnOffer, Offering::OnMakeAnOffer.new)
+    bus.register(Offering::RejectOffer, Offering::OnRejectOffer.new)
   end
 end
