@@ -40,5 +40,6 @@ Rails.configuration.to_prepare do
     # Offering BC
     bus.register(Offering::MakeAnOffer, Offering::OnMakeAnOffer.new)
     bus.register(Offering::RejectOffer, Offering::OnRejectOffer.new)
+    bus.register(Offering::ReadAnOffer, Offering::OnReadAnOffer.new)
   end
 end

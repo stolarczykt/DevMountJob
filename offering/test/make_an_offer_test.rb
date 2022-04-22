@@ -9,6 +9,7 @@ module Offering
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
       contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
       stream = "Offer$#{offer_id}"
 
@@ -19,11 +20,12 @@ module Offering
             offer_id: offer_id,
             advertisement_id: advertisement_id,
             recruiter_id: recruiter_id,
+            recipient_id: recipient_id,
             contact_details: contact_details
           }
         )
       ) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
       end
     end
 
@@ -47,13 +49,14 @@ module Offering
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
       contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
       arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, contact_details)
+        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details)
       )
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
       end
       assert_equal :made, error.current_state
       assert_equal :initialized, error.desired_states
@@ -63,15 +66,16 @@ module Offering
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
       requester_id = SecureRandom.uuid
       contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
       arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, contact_details),
+        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details),
         RejectOffer.new(offer_id, requester_id)
       )
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
       end
       assert_equal :rejected, error.current_state
       assert_equal :initialized, error.desired_states
@@ -81,22 +85,27 @@ module Offering
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
       contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
 
       assert_raises(Offer::MissingAdvertisement) do
-        act(MakeAnOffer.new(offer_id, nil, recruiter_id, contact_details))
+        act(MakeAnOffer.new(offer_id, nil, recruiter_id, recipient_id, contact_details))
       end
 
       assert_raises(Offer::MissingRecruiter) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, nil, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, nil, recipient_id, contact_details))
+      end
+
+      assert_raises(Offer::MissingRecipient) do
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, nil, contact_details))
       end
 
       assert_raises(Offer::MissingContactDetails) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, nil))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, nil))
       end
 
       assert_raises(Offer::MissingContactDetails) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, ""))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, ""))
       end
     end
   end

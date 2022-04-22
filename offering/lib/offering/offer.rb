@@ -4,6 +4,8 @@ module Offering
 
     MissingAdvertisement = Class.new(StandardError)
     MissingRecruiter = Class.new(StandardError)
+    MissingRecipient = Class.new(StandardError)
+    WrongRecipient = Class.new(StandardError)
     MissingContactDetails = Class.new(StandardError)
 
     def initialize(id)
@@ -12,16 +14,18 @@ module Offering
       @state = :initialized
     end
 
-    def make(advertisement_id, recruiter_id, contact_details)
+    def make(advertisement_id, recruiter_id, recipient_id, contact_details)
       raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
       raise MissingAdvertisement if advertisement_id.nil?
       raise MissingRecruiter if recruiter_id.nil?
+      raise MissingRecipient if recipient_id.nil?
       raise MissingContactDetails if contact_details.nil? || contact_details.strip.empty?
       apply OfferMade.new(
         data: {
           offer_id: @id,
           advertisement_id: advertisement_id,
           recruiter_id: recruiter_id,
+          recipient_id: recipient_id,
           contact_details: contact_details
         }
       )
@@ -36,12 +40,27 @@ module Offering
       )
     end
 
-    on OfferMade do |event|
-      @state = :made
+    def read_by(requester_id)
+      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise WrongRecipient if @recipient_id != requester_id
+      apply OfferRead.new(
+        data: {
+          offer_id: @id
+        }
+      )
     end
 
-    on OfferRejected do |event|
+    on OfferMade do |event|
+      @state = :made
+      @recipient_id = event.data[:recipient_id]
+    end
+
+    on OfferRejected do |_|
       @state = :rejected
+    end
+
+    on OfferRead do |_|
+
     end
   end
 end
