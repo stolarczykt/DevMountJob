@@ -12,7 +12,7 @@ module Offering
     def call(command)
       repository = OfferRepository::new
       repository.with_offer(command.offer_id) do |offer|
-        offer.reject
+        offer.reject(command.requester_id)
       end
     end
   end

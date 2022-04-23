@@ -31,8 +31,9 @@ module Offering
       )
     end
 
-    def reject
+    def reject(user_id)
       raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise NotAnOfferRecipient unless @recipient_id === user_id
       apply OfferRejected.new(
         data: {
           offer_id: @id
