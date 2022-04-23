@@ -2,10 +2,10 @@ require_relative 'test_helper'
 require 'securerandom'
 
 module Offering
-  class ReadAnOfferTest < ActiveSupport::TestCase
+  class AddAnOfferToFavoritesTest < ActiveSupport::TestCase
     include TestPlumbing
 
-    test 'read an offer' do
+    test 'add an offer to favorites' do
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
@@ -18,28 +18,28 @@ module Offering
 
       assert_events(
         stream,
-        OfferRead.new(
+        OfferAddedToFavorites.new(
           data: {
             offer_id: offer_id
           }
         )
       ) do
-        act(ReadAnOffer.new(offer_id, recipient_id))
+        act(AddAnOfferToFavorites.new(offer_id, recipient_id))
       end
     end
 
-    test "can't read if not made" do
+    test "can't add to favorites if not made" do
       offer_id = SecureRandom.uuid
       requester_id = SecureRandom.uuid
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(ReadAnOffer.new(offer_id, requester_id))
+        act(AddAnOfferToFavorites.new(offer_id, requester_id))
       end
       assert_equal :initialized, error.current_state
       assert_equal :made, error.desired_states
     end
 
-    test "can't read someone else's offer" do
+    test "can't add someone else's offer to favorites" do
       offer_id = SecureRandom.uuid
       advertisement_id = SecureRandom.uuid
       recruiter_id = SecureRandom.uuid
@@ -51,7 +51,7 @@ module Offering
       )
 
       assert_raises(Offer::NotAnOfferRecipient) do
-        act(ReadAnOffer.new(offer_id, requester_id))
+        act(AddAnOfferToFavorites.new(offer_id, requester_id))
       end
     end
   end

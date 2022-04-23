@@ -25,4 +25,22 @@ module Offering
       end
     end
   end
+
+  class OnAddAnOfferToFavorites
+    def call(command)
+      repository = OfferRepository::new
+      repository.with_offer(command.offer_id) do |offer|
+        offer.add_to_favorites(command.requester_id)
+      end
+    end
+  end
+
+  class OnRemoveAnOfferFromFavorites
+    def call(command)
+      repository = OfferRepository::new
+      repository.with_offer(command.offer_id) do |offer|
+        offer.remove_from_favorites(command.requester_id)
+      end
+    end
+  end
 end

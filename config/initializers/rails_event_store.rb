@@ -41,5 +41,7 @@ Rails.configuration.to_prepare do
     bus.register(Offering::MakeAnOffer, Offering::OnMakeAnOffer.new)
     bus.register(Offering::RejectOffer, Offering::OnRejectOffer.new)
     bus.register(Offering::ReadAnOffer, Offering::OnReadAnOffer.new)
+    bus.register(Offering::AddAnOfferToFavorites, Offering::OnAddAnOfferToFavorites.new)
+    bus.register(Offering::RemoveAnOfferFromFavorites, Offering::OnRemoveAnOfferFromFavorites.new)
   end
 end

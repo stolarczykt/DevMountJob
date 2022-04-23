@@ -5,7 +5,7 @@ module Offering
     MissingAdvertisement = Class.new(StandardError)
     MissingRecruiter = Class.new(StandardError)
     MissingRecipient = Class.new(StandardError)
-    WrongRecipient = Class.new(StandardError)
+    NotAnOfferRecipient = Class.new(StandardError)
     MissingContactDetails = Class.new(StandardError)
 
     def initialize(id)
@@ -40,10 +40,30 @@ module Offering
       )
     end
 
-    def read_by(requester_id)
+    def read_by(user_id)
       raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
-      raise WrongRecipient if @recipient_id != requester_id
+      raise NotAnOfferRecipient unless @recipient_id === user_id
       apply OfferRead.new(
+        data: {
+          offer_id: @id
+        }
+      )
+    end
+
+    def add_to_favorites(user_id)
+      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise NotAnOfferRecipient unless @recipient_id === user_id
+      apply OfferAddedToFavorites.new(
+        data: {
+          offer_id: @id
+        }
+      )
+    end
+
+    def remove_from_favorites(user_id)
+      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise NotAnOfferRecipient unless @recipient_id === user_id
+      apply OfferRemovedFromFavorites.new(
         data: {
           offer_id: @id
         }
@@ -60,7 +80,12 @@ module Offering
     end
 
     on OfferRead do |_|
+    end
 
+    on OfferAddedToFavorites do |_|
+    end
+
+    on OfferRemovedFromFavorites do |_|
     end
   end
 end
