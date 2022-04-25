@@ -3,55 +3,36 @@ require 'securerandom'
 
 module Offering
   class RemoveAnOfferFromFavoritesTest < ActiveSupport::TestCase
-    include TestPlumbing
+    include OfferingTestPlumbing
 
     test 'remove an offer from favorites' do
-      offer_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.uuid
-      recruiter_id = SecureRandom.uuid
-      recipient_id = SecureRandom.uuid
-      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
-      stream = "Offer$#{offer_id}"
-      arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details),
-      )
+      offer_data = arrange_making_an_offer
 
       assert_events(
-        stream,
+        offer_data.stream,
         OfferRemovedFromFavorites.new(
           data: {
-            offer_id: offer_id
+            offer_id: offer_data.offer_id
           }
         )
       ) do
-        act(RemoveAnOfferFromFavorites.new(offer_id, recipient_id))
+        act(RemoveAnOfferFromFavorites.new(offer_data.offer_id, offer_data.recipient_id))
       end
     end
 
     test "can't remove from favorites if not made" do
-      offer_id = SecureRandom.uuid
-      requester_id = SecureRandom.uuid
-
       error = assert_raises(UnexpectedStateTransition) do
-        act(RemoveAnOfferFromFavorites.new(offer_id, requester_id))
+        act(RemoveAnOfferFromFavorites.new(SecureRandom.uuid, SecureRandom.uuid))
       end
       assert_equal :initialized, error.current_state
       assert_equal :made, error.desired_states
     end
 
     test "can't remove someone else's offer from favorites" do
-      offer_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.uuid
-      recruiter_id = SecureRandom.uuid
-      recipient_id = SecureRandom.uuid
-      requester_id = SecureRandom.uuid
-      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
-      arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details),
-      )
+      offer_data = arrange_making_an_offer
 
       assert_raises(Offer::NotAnOfferRecipient) do
-        act(RemoveAnOfferFromFavorites.new(offer_id, requester_id))
+        act(RemoveAnOfferFromFavorites.new(offer_data.offer_id, SecureRandom.uuid))
       end
     end
   end

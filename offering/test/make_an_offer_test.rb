@@ -3,7 +3,7 @@ require 'securerandom'
 
 module Offering
   class MakeAnOfferTest < ActiveSupport::TestCase
-    include TestPlumbing
+    include OfferingTestPlumbing
 
     test 'make an offer' do
       offer_id = SecureRandom.uuid
@@ -46,36 +46,31 @@ module Offering
     # end
 
     test "can't make already made offer" do
-      offer_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.uuid
-      recruiter_id = SecureRandom.uuid
-      recipient_id = SecureRandom.uuid
-      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
-      arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details)
-      )
+      offer_data = arrange_making_an_offer
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
+        act(
+          MakeAnOffer.new(
+            offer_data.offer_id,
+            offer_data.advertisement_id,
+            offer_data.recruiter_id,
+            offer_data.recipient_id,
+            offer_data.contact_details
+          )
+        )
       end
       assert_equal :made, error.current_state
       assert_equal :initialized, error.desired_states
     end
 
     test "can't make an offer when rejected" do
-      offer_id = SecureRandom.uuid
-      advertisement_id = SecureRandom.uuid
-      recruiter_id = SecureRandom.uuid
-      recipient_id = SecureRandom.uuid
-      requester_id = SecureRandom.uuid
-      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
+      offer_data = arrange_making_an_offer
       arrange(
-        MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details),
-        RejectOffer.new(offer_id, requester_id)
+        RejectOffer.new(offer_data.offer_id, offer_data.recipient_id)
       )
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
+        act(MakeAnOffer.new(offer_data.offer_id, offer_data.advertisement_id, offer_data.recruiter_id, offer_data.recipient_id, offer_data.contact_details))
       end
       assert_equal :rejected, error.current_state
       assert_equal :initialized, error.desired_states

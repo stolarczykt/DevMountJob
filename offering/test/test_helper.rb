@@ -1,2 +1,31 @@
 require_relative '../lib/offering'
 require_relative '../../test/test_helper'
+
+module OfferingTestPlumbing
+  include TestPlumbing
+
+  def arrange_making_an_offer
+    offer_data = TestOfferData.new
+    arrange(
+      Offering::MakeAnOffer.new(
+        offer_data.offer_id,
+        offer_data.advertisement_id,
+        offer_data.recruiter_id,
+        offer_data.recipient_id,
+        offer_data.contact_details)
+      )
+    offer_data
+  end
+
+  class TestOfferData
+    attr_accessor :offer_id, :advertisement_id, :recruiter_id, :recipient_id, :contact_details, :stream
+    def initialize
+      @offer_id = SecureRandom.uuid
+      @advertisement_id = SecureRandom.uuid
+      @recruiter_id = SecureRandom.uuid
+      @recipient_id = SecureRandom.uuid
+      @contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
+      @stream = "Offer$#{@offer_id}"
+    end
+  end
+end
