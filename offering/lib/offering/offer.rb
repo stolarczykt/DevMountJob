@@ -7,6 +7,7 @@ module Offering
     MissingRecipient = Class.new(StandardError)
     NotAnOfferRecipient = Class.new(StandardError)
     MissingContactDetails = Class.new(StandardError)
+    OfferAlreadyMade = Class.new(StandardError)
 
     def initialize(id)
       raise ArgumentError if id.nil?
@@ -14,12 +15,13 @@ module Offering
       @state = :initialized
     end
 
-    def make(advertisement_id, recruiter_id, recipient_id, contact_details)
+    def make(advertisement_id, recruiter_id, recipient_id, contact_details, other_recruiters)
       raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
       raise MissingAdvertisement if advertisement_id.nil?
       raise MissingRecruiter if recruiter_id.nil?
       raise MissingRecipient if recipient_id.nil?
       raise MissingContactDetails if contact_details.nil? || contact_details.strip.empty?
+      raise OfferAlreadyMade if other_recruiters.include?(recruiter_id)
       apply OfferMade.new(
         data: {
           offer_id: @id,

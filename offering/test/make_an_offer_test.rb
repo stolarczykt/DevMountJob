@@ -25,25 +25,42 @@ module Offering
           }
         )
       ) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, contact_details, []))
       end
     end
 
-    # todo: come up with a way of checking whether recruiter already made an offer to the advertisement
-    # test "can't make an another offer to the same advertisement" do
-    #   first_offer_id = SecureRandom.uuid
-    #   second_offer_id = SecureRandom.uuid
-    #   advertisement_id = SecureRandom.uuid
-    #   recruiter_id = SecureRandom.uuid
-    #   contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
-    #   arrange(
-    #     MakeAnOffer.new(first_offer_id, advertisement_id, recruiter_id, contact_details)
-    #   )
-    #
-    #   assert_raises(OfferAlreadyMade) do
-    #     act(MakeAnOffer.new(second_offer_id, advertisement_id, recruiter_id, contact_details))
-    #   end
-    # end
+    test "can't make an another offer to the same advertisement" do
+      first_offer_id = SecureRandom.uuid
+      second_offer_id = SecureRandom.uuid
+      advertisement_id = SecureRandom.uuid
+      recruiter_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
+      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
+      arrange(
+        MakeAnOffer.new(first_offer_id, advertisement_id, recruiter_id, recipient_id, contact_details, [])
+      )
+
+      assert_raises(Offer::OfferAlreadyMade) do
+        act(MakeAnOffer.new(second_offer_id, advertisement_id, recruiter_id, recipient_id, contact_details, [recruiter_id]))
+      end
+    end
+
+    test "different recruiters can make offers to the same advertisement" do
+      advertisement_id = SecureRandom.uuid
+      recipient_id = SecureRandom.uuid
+      contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
+
+      first_offer_id = SecureRandom.uuid
+      second_offer_id = SecureRandom.uuid
+      third_offer_id = SecureRandom.uuid
+      first_recruiter_id = SecureRandom.uuid
+      second_recruiter_id = SecureRandom.uuid
+      third_recruiter_id = SecureRandom.uuid
+
+      act(MakeAnOffer.new(first_offer_id, advertisement_id, first_recruiter_id, recipient_id, contact_details, []))
+      act(MakeAnOffer.new(second_offer_id, advertisement_id, second_recruiter_id, recipient_id, contact_details, [first_recruiter_id]))
+      act(MakeAnOffer.new(third_offer_id, advertisement_id, third_recruiter_id, recipient_id, contact_details, [first_recruiter_id, second_recruiter_id]))
+    end
 
     test "can't make already made offer" do
       offer_data = arrange_making_an_offer
@@ -55,7 +72,8 @@ module Offering
             offer_data.advertisement_id,
             offer_data.recruiter_id,
             offer_data.recipient_id,
-            offer_data.contact_details
+            offer_data.contact_details,
+            offer_data.other_recruiters
           )
         )
       end
@@ -70,7 +88,7 @@ module Offering
       )
 
       error = assert_raises(UnexpectedStateTransition) do
-        act(MakeAnOffer.new(offer_data.offer_id, offer_data.advertisement_id, offer_data.recruiter_id, offer_data.recipient_id, offer_data.contact_details))
+        act(MakeAnOffer.new(offer_data.offer_id, offer_data.advertisement_id, offer_data.recruiter_id, offer_data.recipient_id, offer_data.contact_details, offer_data.other_recruiters))
       end
       assert_equal :rejected, error.current_state
       assert_equal :initialized, error.desired_states
@@ -82,25 +100,26 @@ module Offering
       recruiter_id = SecureRandom.uuid
       recipient_id = SecureRandom.uuid
       contact_details = "Contact details: #{SecureRandom.alphanumeric(100)}"
+      other_recruiters = []
 
       assert_raises(Offer::MissingAdvertisement) do
-        act(MakeAnOffer.new(offer_id, nil, recruiter_id, recipient_id, contact_details))
+        act(MakeAnOffer.new(offer_id, nil, recruiter_id, recipient_id, contact_details, other_recruiters))
       end
 
       assert_raises(Offer::MissingRecruiter) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, nil, recipient_id, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, nil, recipient_id, contact_details, other_recruiters))
       end
 
       assert_raises(Offer::MissingRecipient) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, nil, contact_details))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, nil, contact_details, other_recruiters))
       end
 
       assert_raises(Offer::MissingContactDetails) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, nil))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, nil, other_recruiters))
       end
 
       assert_raises(Offer::MissingContactDetails) do
-        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, ""))
+        act(MakeAnOffer.new(offer_id, advertisement_id, recruiter_id, recipient_id, "", other_recruiters))
       end
     end
   end
