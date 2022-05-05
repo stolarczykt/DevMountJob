@@ -46,7 +46,7 @@ module Offering
     end
 
     def read_by(user_id)
-      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise OperationNotAllowed.new(@state) unless @state.equal?(:made)
       raise NotAnOfferRecipient unless @recipient_id === user_id
       apply OfferRead.new(
         data: {
@@ -56,7 +56,7 @@ module Offering
     end
 
     def add_to_favorites(user_id)
-      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise OperationNotAllowed.new(@state) unless @state.equal?(:made)
       raise NotAnOfferRecipient unless @recipient_id === user_id
       apply OfferAddedToFavorites.new(
         data: {
@@ -66,7 +66,7 @@ module Offering
     end
 
     def remove_from_favorites(user_id)
-      raise UnexpectedStateTransition.new(@state, :made) unless @state.equal?(:made)
+      raise OperationNotAllowed.new(@state) unless @state.equal?(:made)
       raise NotAnOfferRecipient unless @recipient_id === user_id
       apply OfferRemovedFromFavorites.new(
         data: {

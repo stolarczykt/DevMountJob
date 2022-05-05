@@ -21,11 +21,10 @@ module Offering
     end
 
     test "can't remove from favorites if not made" do
-      error = assert_raises(UnexpectedStateTransition) do
+      error = assert_raises(OperationNotAllowed) do
         act(RemoveAnOfferFromFavorites.new(SecureRandom.uuid, SecureRandom.uuid))
       end
       assert_equal :initialized, error.current_state
-      assert_equal :made, error.desired_states
     end
 
     test "can't remove someone else's offer from favorites" do

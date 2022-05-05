@@ -21,11 +21,10 @@ module Offering
     end
 
     test "can't add to favorites if not made" do
-      error = assert_raises(UnexpectedStateTransition) do
+      error = assert_raises(OperationNotAllowed) do
         act(AddAnOfferToFavorites.new(SecureRandom.uuid, SecureRandom.uuid))
       end
       assert_equal :initialized, error.current_state
-      assert_equal :made, error.desired_states
     end
 
     test "can't add someone else's offer to favorites" do
