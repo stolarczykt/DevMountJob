@@ -3,7 +3,7 @@ module Offering
     def call(command)
       repository = OfferRepository::new
       repository.with_offer(command.offer_id) do |offer|
-        offer.make(command.advertisement_id, command.recruiter_id, command.recipient_id, command.contact_details, command.other_recruiters)
+        offer.make(command.advertisement_id, command.recruiter_id, command.recipient_id, command.contact_details, command.other_recruiters, command.expectations)
       end
     end
   end
