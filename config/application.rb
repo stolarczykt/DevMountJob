@@ -23,5 +23,6 @@ module DevMountJob
     config.paths.add 'advertisements/lib', eager_load: true
     config.paths.add 'offering/lib', eager_load: true
     config.paths.add 'payments/lib', eager_load: true
+    config.paths.add 'ranking/lib', eager_load: true
   end
 end

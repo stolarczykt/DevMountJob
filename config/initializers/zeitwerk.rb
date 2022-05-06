@@ -5,4 +5,6 @@ Rails.autoloaders.each do |autoloader|
   autoloader.collapse(Rails.root.join("offering/lib/offering/commands"))
   autoloader.collapse(Rails.root.join("payments/lib/payments/events"))
   autoloader.collapse(Rails.root.join("payments/lib/payments/commands"))
+  autoloader.collapse(Rails.root.join("ranking/lib/ranking/events"))
+  autoloader.collapse(Rails.root.join("ranking/lib/ranking/commands"))
 end
