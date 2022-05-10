@@ -46,5 +46,8 @@ Rails.configuration.to_prepare do
 
     # Ranking BC
     bus.register(Ranking::SubmitComplaint, Ranking::OnSubmitComplaint.new)
+    bus.register(Ranking::RejectComplaint, Ranking::OnRejectComplaint.new)
+    bus.register(Ranking::ExpireComplaint, Ranking::OnExpireComplaint.new)
+    bus.register(Ranking::AcceptComplaint, Ranking::OnAcceptComplaint.new)
   end
 end

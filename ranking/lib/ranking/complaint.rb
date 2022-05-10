@@ -27,8 +27,48 @@ module Ranking
       )
     end
 
+    def accept
+      raise UnexpectedStateTransition.new(@state, :submitted) unless @state.equal?(:submitted)
+      apply ComplaintAccepted.new(
+        data: {
+          complaint_id: @id
+        }
+      )
+    end
+
+    def expire
+      raise UnexpectedStateTransition.new(@state, :submitted) unless @state.equal?(:submitted)
+      apply ComplaintExpired.new(
+        data: {
+          complaint_id: @id
+        }
+      )
+    end
+
+    def reject(reason)
+      raise UnexpectedStateTransition.new(@state, :submitted) unless @state.equal?(:submitted)
+      apply ComplaintRejected.new(
+        data: {
+          complaint_id: @id,
+          reason: reason
+        }
+      )
+    end
+
     on ComplaintSubmitted do |_|
       @state = :submitted
+    end
+
+    on ComplaintAccepted do |_|
+      @state = :accepted
+    end
+
+    on ComplaintExpired do |_|
+      @state = :expired
+    end
+
+    on ComplaintRejected do |_|
+      @state = :rejected
     end
   end
 end
