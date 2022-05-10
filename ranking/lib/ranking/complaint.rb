@@ -5,6 +5,7 @@ module Ranking
     MissingRecruiter = Class.new(StandardError)
     MissingCandidate = Class.new(StandardError)
     MissingNote = Class.new(StandardError)
+    MissingReason = Class.new(StandardError)
 
     def initialize(id)
       raise ArgumentError if id.nil?
@@ -47,6 +48,7 @@ module Ranking
 
     def reject(reason)
       raise UnexpectedStateTransition.new(@state, :submitted) unless @state.equal?(:submitted)
+      raise MissingReason if reason.nil? || reason.strip.empty?
       apply ComplaintRejected.new(
         data: {
           complaint_id: @id,
