@@ -2,6 +2,8 @@ module Ranking
   class Complaint
     include AggregateRoot
 
+    MissingRecruiter = Class.new(StandardError)
+    MissingCandidate = Class.new(StandardError)
     MissingNote = Class.new(StandardError)
 
     def initialize(id)
@@ -12,6 +14,9 @@ module Ranking
 
     def submit_complaint(recruiter_id, candidate_id, note)
       raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
+      raise MissingRecruiter if recruiter_id.nil?
+      raise MissingCandidate if candidate_id.nil?
+      raise MissingNote if note.nil? || note.strip.empty?
       apply ComplaintSubmitted.new(
         data: {
           complaint_id: @id,
