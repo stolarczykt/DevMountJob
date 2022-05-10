@@ -13,7 +13,7 @@ module Ranking
       @state = :initialized
     end
 
-    def submit_complaint(recruiter_id, candidate_id, note)
+    def submit(recruiter_id, candidate_id, note)
       raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
       raise MissingRecruiter if recruiter_id.nil?
       raise MissingCandidate if candidate_id.nil?
