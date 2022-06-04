@@ -3,7 +3,16 @@ module Offering
     def call(command)
       repository = OfferRepository::new
       repository.with_offer(command.offer_id) do |offer|
-        offer.make(command.advertisement_id, command.recruiter_id, command.recipient_id, command.contact_details, command.other_recruiters, command.expectations)
+        offer.make(command.other_recruiters)
+      end
+    end
+  end
+
+  class OnRequestOffer
+    def call(command)
+      repository = OfferRepository::new
+      repository.with_offer(command.offer_id) do |offer|
+        offer.request(command.advertisement_id, command.recruiter_id, command.recipient_id, command.contact_details, command.expectations)
       end
     end
   end

@@ -5,15 +5,25 @@ module OfferingTestPlumbing
   include TestPlumbing
 
   def arrange_making_an_offer
-    offer_data = TestOfferData.new
+    offer_data = arrange_request_an_offer
     arrange(
       Offering::MakeAnOffer.new(
+        offer_data.offer_id,
+        offer_data.other_recruiters
+      )
+    )
+    offer_data
+  end
+
+  def arrange_request_an_offer
+    offer_data = TestOfferData.new
+    arrange(
+      Offering::RequestAnOffer.new(
         offer_data.offer_id,
         offer_data.advertisement_id,
         offer_data.recruiter_id,
         offer_data.recipient_id,
         offer_data.contact_details,
-        offer_data.other_recruiters,
         offer_data.expectations
       )
     )

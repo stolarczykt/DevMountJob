@@ -16,21 +16,30 @@ module Offering
       @state = :initialized
     end
 
-    def make(advertisement_id, recruiter_id, recipient_id, contact_details, other_recruiters, expectations)
+    def request(advertisement_id, recruiter_id, recipient_id, contact_details, expectations)
       raise UnexpectedStateTransition.new(@state, :initialized) unless @state.equal?(:initialized)
       raise MissingAdvertisement if advertisement_id.nil?
       raise MissingRecruiter if recruiter_id.nil?
       raise MissingRecipient if recipient_id.nil?
       raise MissingContactDetails if contact_details.nil? || contact_details.strip.empty?
-      raise OfferAlreadyMade if other_recruiters.include?(recruiter_id)
       raise ExpectationsNotFulfilled if expectations.any? { |expectation| expectation.not_satisfied? }
-      apply OfferMade.new(
+      apply OfferRequested.new(
         data: {
           offer_id: @id,
           advertisement_id: advertisement_id,
           recruiter_id: recruiter_id,
           recipient_id: recipient_id,
           contact_details: contact_details
+        }
+      )
+    end
+
+    def make(other_recruiters)
+      raise UnexpectedStateTransition.new(@state, :requested) unless @state.equal?(:requested)
+      raise OfferAlreadyMade if other_recruiters.include?(@recruiter_id)
+      apply OfferMade.new(
+        data: {
+          offer_id: @id
         }
       )
     end
@@ -75,9 +84,14 @@ module Offering
       )
     end
 
-    on OfferMade do |event|
+    on OfferMade do |_|
       @state = :made
+    end
+
+    on OfferRequested do |event|
+      @state = :requested
       @recipient_id = event.data[:recipient_id]
+      @recruiter_id = event.data[:recruiter_id]
     end
 
     on OfferRejected do |_|
