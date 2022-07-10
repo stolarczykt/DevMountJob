@@ -19,6 +19,11 @@ Rails.configuration.to_prepare do
     store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new)
     store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
     store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+
+    # Process Managers
+    store.subscribe(->(event) do
+      Offering::OfferingProcess.perform_later(YAML.dump(event))
+    end, to: [Offering::OfferRequested])
   end
 
   # Register command handlers below
