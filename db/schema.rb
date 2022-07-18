@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_11_124902) do
+ActiveRecord::Schema.define(version: 2022_07_18_074930) do
 
   create_table "event_store_events", force: :cascade do |t|
     t.string "event_id", limit: 36, null: false
@@ -41,6 +41,14 @@ ActiveRecord::Schema.define(version: 2022_06_11_124902) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["advertisement_id"], name: "index_offering_process_states_on_advertisement_id", unique: true
+  end
+
+  create_table "ranking_process_states", force: :cascade do |t|
+    t.string "evaluation_id", null: false
+    t.binary "data"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["evaluation_id"], name: "index_ranking_process_states_on_evaluation_id", unique: true
   end
 
 end
