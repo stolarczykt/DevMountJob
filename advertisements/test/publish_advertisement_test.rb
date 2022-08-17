@@ -28,53 +28,12 @@ module Advertisements
       end
     end
 
-    test 'fail to publish when missing author or content' do
+    test 'fail to publish when missing author' do
       advertisement_id = SecureRandom.uuid
-      stream = "Advertisement$#{advertisement_id}"
-      time_when_published = Time.now
-      travel_in_time_to(time_when_published)
-      due_date = time_when_published + FakeDueDatePolicy::PUBLISH_FOR_SECONDS
-
-      author_id = SecureRandom.uuid
       content = "Content: #{SecureRandom.hex}"
-
-      assert_raises(Advertisement::MissingContent) do
-        act(PublishAdvertisement.new(advertisement_id, author_id, ""))
-      end
 
       assert_raises(Advertisement::MissingAuthor) do
         act(PublishAdvertisement.new(advertisement_id, nil, content))
-      end
-
-      assert_events(
-          stream,
-          AdvertisementPublished.new(
-              data: {
-                  advertisement_id: advertisement_id,
-                  author_id: author_id,
-                  content: content,
-                  due_date: due_date
-              }
-          )
-      ) do
-        act(PublishAdvertisement.new(advertisement_id, author_id, content))
-      end
-    end
-
-    test "can't publish advertisement when empty or nil content" do
-      advertisement_id = SecureRandom.uuid
-      author_id = SecureRandom.uuid
-
-      assert_raises(Advertisement::MissingContent) do
-        act(PublishAdvertisement.new(advertisement_id, author_id, ""))
-      end
-
-      assert_raises(Advertisement::MissingContent) do
-        act(PublishAdvertisement.new(advertisement_id, author_id, "     "))
-      end
-
-      assert_raises(Advertisement::MissingContent) do
-        act(PublishAdvertisement.new(advertisement_id, author_id, nil))
       end
     end
 

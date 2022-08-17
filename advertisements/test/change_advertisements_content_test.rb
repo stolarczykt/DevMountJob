@@ -25,21 +25,6 @@ module Advertisements
       end
     end
 
-    test "can't change the content if not provided" do
-      advertisement_id = SecureRandom.uuid
-      author_id = SecureRandom.uuid
-      original_content = "Content: #{SecureRandom.hex}"
-      arrange(PublishAdvertisement.new(advertisement_id, author_id, original_content))
-
-      assert_raises(Advertisement::MissingContent) do
-        act(ChangeContent.new(advertisement_id, "", author_id))
-      end
-
-      assert_raises(Advertisement::MissingContent) do
-        act(ChangeContent.new(advertisement_id, nil, author_id))
-      end
-    end
-
     test "can't change the content after due date" do
       advertisement_id = SecureRandom.uuid
       author_id = SecureRandom.uuid

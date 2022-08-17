@@ -5,7 +5,6 @@ module Advertisements
     NotPublished = Class.new(StandardError)
     AfterDueDate = Class.new(StandardError)
     NotAnAuthorOfAdvertisement = Class.new(StandardError)
-    MissingContent = Class.new(StandardError)
     MissingAuthor = Class.new(StandardError)
     MissingSuspendReason = Class.new(StandardError)
 
@@ -21,13 +20,12 @@ module Advertisements
 
     def publish(author_id, content)
       raise UnexpectedStateTransition.new(@state, :draft) unless @state.equal?(:draft)
-      raise MissingContent if content.nil? || content.strip.empty?
       raise MissingAuthor if author_id.nil?
       apply AdvertisementPublished.new(
         data: {
           advertisement_id: @id,
           author_id: author_id,
-          content: content,
+          content: content.text,
           due_date: @due_date_policy.call
         }
       )
@@ -92,12 +90,11 @@ module Advertisements
     def change_content(new_content, author_id)
       raise NotPublished unless @state.equal?(:published)
       raise NotAnAuthorOfAdvertisement unless @author_id === author_id
-      raise MissingContent if new_content.nil? || new_content.strip.empty?
       raise AfterDueDate if @clock.now > @due_date
       apply ContentHasChanged.new(
         data: {
           advertisement_id: @id,
-          content: new_content
+          content: new_content.text
         }
       )
     end
